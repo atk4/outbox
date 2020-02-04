@@ -1,0 +1,32 @@
+{
+  "name": "atk4/outbox",
+  "description": "Agile toolkit Email",
+  "minimum-stability": "beta",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Francesco Danti",
+      "email": "fdanti@gmail.com"
+    }
+  ],
+  "require": {
+    "php": "^7.3",
+    "atk4/ui": "2.0.4",
+    "phpmailer/phpmailer": "6.0.x-dev"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "*",
+    "satooshi/php-coveralls": "^1.0",
+    "codeclimate/php-test-reporter": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "atk4\\outbox\\" : "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "atk4\\outbox\\Test\\" : "tests/"
+    }
+  }
+}
