@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace atk4\outbox\Model;
 
@@ -7,7 +8,7 @@ use atk4\data\Model;
 use atk4\outbox\Outbox;
 
 /**
- * Class Mail
+ * Class Mail.
  */
 class Mail extends Model
 {
@@ -31,7 +32,7 @@ class Mail extends Model
      * @throws \atk4\core\Exception
      * @throws Exception
      */
-    public function init()
+    public function init(): void
     {
         parent::init();
 
@@ -54,8 +55,7 @@ class Mail extends Model
 
         $this->addField('postpone_to', ['type' => 'datetime']);
 
-        $this->addField(
-            'status', [
+        $this->addField('status', [
             'type'    => 'enum',
             'values'  => static::MAIL_STATUS,
             'default' => 0,
@@ -65,7 +65,7 @@ class Mail extends Model
     }
 
     /**
-     * Set data from MailTemplate
+     * Set data from MailTemplate.
      *
      * @param MailTemplate $template
      *
@@ -104,26 +104,26 @@ class Mail extends Model
     }
 
     /**
-     * Check if can be processed
+     * Check if can be processed.
      * @throws Exception
      */
     private function allowProcessing(): void
     {
-        if ((int)$this->get('status') !== 0) {
+        if (0 !== (int)$this->get('status')) {
             throw new Exception('You cannot modify a mail not in draft status');
         }
     }
 
     /**
-     * @param string|array<string,string>|Model            $tokens
-     * @param string|null $prefix
+     * @param string|array<string,string>|Model $tokens
+     * @param string|null                       $prefix
      *
      * @throws Exception
      * @return Mail
      */
     public function replaceContent($tokens, ?string $prefix = null): Mail
     {
-        if(is_string($tokens)) {
+        if (is_string($tokens)) {
             $tokens = [$tokens => $prefix];
             $prefix = null;
         }
@@ -133,7 +133,7 @@ class Mail extends Model
         }
 
         foreach ($tokens as $key => $value) {
-            $key = '{{' . (null === $prefix ? $key : $prefix . '.' . $key) . '}}';
+            $key = '{{'.(null === $prefix ? $key : $prefix.'.'.$key).'}}';
             $this->replaceContentToken($key, $value);
         }
 
@@ -141,7 +141,7 @@ class Mail extends Model
     }
 
     /**
-     * Replace in subject, html and text using key with value
+     * Replace in subject, html and text using key with value.
      *
      * @param string $key
      * @param string $value
@@ -161,9 +161,9 @@ class Mail extends Model
         return $this;
     }
 
-    public function send(?Outbox $outbox = null)
+    public function send(?Outbox $outbox = null): void
     {
-        if ($outbox === null && null !== $this->app && method_exists($this->app, 'getOutbox')) {
+        if (null === $outbox && null !== $this->app && method_exists($this->app, 'getOutbox')) {
             $outbox = $this->app->getOutbox();
         }
 

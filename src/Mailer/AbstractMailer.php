@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace atk4\outbox\Mailer;
 
@@ -58,21 +59,27 @@ class AbstractMailer implements MailerInterface
             $this->phpmailer->setFrom($from->get('email'), $from->get('name'));
 
             $this->addAddress(
-                $mail, 'replyto', function ($address) {
-                $this->phpmailer->addReplyTo($address->get('email'), $address->get('name'));
-            }
+                $mail,
+                'replyto',
+                function ($address): void {
+                    $this->phpmailer->addReplyTo($address->get('email'), $address->get('name'));
+                }
             );
 
             $this->addAddress(
-                $mail, 'cc', function ($address) {
-                $this->phpmailer->addCC($address->get('email'), $address->get('name'));
-            }
+                $mail,
+                'cc',
+                function ($address): void {
+                    $this->phpmailer->addCC($address->get('email'), $address->get('name'));
+                }
             );
 
             $this->addAddress(
-                $mail, 'replyto', function ($address) {
-                $this->phpmailer->addBCC($address->get('email'), $address->get('name'));
-            }
+                $mail,
+                'replyto',
+                function ($address): void {
+                    $this->phpmailer->addBCC($address->get('email'), $address->get('name'));
+                }
             );
 
             $this->phpmailer->Subject = $mail->get('subject');
@@ -103,7 +110,7 @@ class AbstractMailer implements MailerInterface
         /* @todo insert MailResponse - every mailer has a different way of "response" */
     }
 
-    private function addAddress(Mail $mail, string $ref_name, callable $func)
+    private function addAddress(Mail $mail, string $ref_name, callable $func): void
     {
         foreach ($mail->ref($ref_name) as $id => $address) {
             $func($address);

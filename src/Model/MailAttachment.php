@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace atk4\outbox\Model;
 
@@ -6,7 +7,7 @@ use atk4\data\Model;
 
 class MailAttachment extends Model
 {
-    public function init()
+    public function init(): void
     {
         parent::init();
 

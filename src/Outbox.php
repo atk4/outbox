@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace atk4\outbox;
 
@@ -20,14 +21,14 @@ class Outbox
     use FactoryTrait;
 
     /**
-     * Mailer
+     * Mailer.
      *
      * @var MailerInterface
      */
     private $mailer;
 
     /**
-     * Default Mail model
+     * Default Mail model.
      *
      * @var Mail
      */
@@ -54,11 +55,12 @@ class Outbox
     {
         $this->_init();
 
-        if ($this->app !== null) {
+        if (null !== $this->app) {
             $this->app->addMethod(
-                'getOutBox', function (): self {
-                return $this;
-            }
+                'getOutBox',
+                function (): self {
+                    return $this;
+                }
             );
 
             if (is_array($this->model)) {
@@ -125,7 +127,8 @@ class Outbox
         $mail->hook('afterSend');
     }
 
-    public function callableSend(callable $send) {
+    public function callableSend(callable $send): void
+    {
         $mail = $send($this->new());
         $this->send($mail);
     }

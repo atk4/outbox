@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace atk4\outbox\Model;
 
@@ -8,7 +9,7 @@ class MailResponse extends Model
 {
     public $table = 'mail_response';
 
-    public function init()
+    public function init(): void
     {
         parent::init();
 
