@@ -125,7 +125,7 @@ class Outbox
     /**
      * @throws Exception
      */
-    private function validateOutbox(): void
+    protected function validateOutbox(): void
     {
         if (!$this->_initialized) {
             $exc = new Exception('Outbox must be initialized first');
