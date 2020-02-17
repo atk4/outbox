@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace atk4\outbox\Model;
 
 use atk4\data\Model;
+use DateTime;
 
 class MailResponse extends Model
 {
@@ -18,6 +19,6 @@ class MailResponse extends Model
         $this->addField("code", ['type' => 'int']);
         $this->addField("message", ['type' => 'string']);
 
-        $this->addField("timestamp", ['type' => 'datetime', 'default' => new \DateTime()]);
+        $this->addField("timestamp", ['type' => 'datetime', 'default' => new DateTime()]);
     }
 }

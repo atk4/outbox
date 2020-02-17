@@ -12,11 +12,11 @@ use atk4\outbox\Outbox;
  */
 class Mail extends Model
 {
-    public const STATUS_DRAFT   = 'DRAFT';
-    public const STATUS_READY   = 'READY';
+    public const STATUS_DRAFT = 'DRAFT';
+    public const STATUS_READY = 'READY';
     public const STATUS_SENDING = 'SENDING';
-    public const STATUS_SENT    = 'SENT';
-    public const STATUS_ERROR   = 'ERROR';
+    public const STATUS_SENT = 'SENT';
+    public const STATUS_ERROR = 'ERROR';
 
     public const MAIL_STATUS = [
         0 => self::STATUS_DRAFT,
@@ -56,8 +56,8 @@ class Mail extends Model
         $this->addField('postpone_to', ['type' => 'datetime']);
 
         $this->addField('status', [
-            'type'    => 'enum',
-            'values'  => static::MAIL_STATUS,
+            'type' => 'enum',
+            'values' => static::MAIL_STATUS,
             'default' => 0,
         ]);
 
@@ -65,33 +65,11 @@ class Mail extends Model
     }
 
     /**
-     * Set data from MailTemplate.
-     *
-     * @param MailTemplate $template
-     *
-     * @throws Exception
-     *
-     * @return Mail
-     */
-    public function withTemplate(MailTemplate $template): Mail
-    {
-        $this->allowProcessing();
-
-        foreach ($template->get() as $key => $value) {
-            if ($this->mail->offsetExists($key)) {
-                $this->mail->set($key, $value);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
      * @param string $identifier
      *
+     * @return Mail
      * @throws Exception
      *
-     * @return Mail
      */
     public function withTemplateIdentifier(string $identifier): Mail
     {
@@ -99,6 +77,28 @@ class Mail extends Model
         $template->load($identifier);
 
         $this->withTemplate($template);
+
+        return $this;
+    }
+
+    /**
+     * Set data from MailTemplate.
+     *
+     * @param MailTemplate $template
+     *
+     * @return Mail
+     * @throws Exception
+     *
+     */
+    public function withTemplate(MailTemplate $template): Mail
+    {
+        $this->allowProcessing();
+
+        foreach ($template->get() as $key => $value) {
+            if ($this->offsetExists($key)) {
+                $this->set($key, $value);
+            }
+        }
 
         return $this;
     }
@@ -116,10 +116,10 @@ class Mail extends Model
 
     /**
      * @param string|array<string,string>|Model $tokens
-     * @param string|null                       $prefix
+     * @param string|null $prefix
      *
-     * @throws Exception
      * @return Mail
+     * @throws Exception
      */
     public function replaceContent($tokens, ?string $prefix = null): Mail
     {
@@ -133,7 +133,7 @@ class Mail extends Model
         }
 
         foreach ($tokens as $key => $value) {
-            $key = '{{'.(null === $prefix ? $key : $prefix.'.'.$key).'}}';
+            $key = '{{' . (null === $prefix ? $key : $prefix . '.' . $key) . '}}';
             $this->replaceContentToken($key, $value);
         }
 
@@ -146,9 +146,9 @@ class Mail extends Model
      * @param string $key
      * @param string $value
      *
+     * @return Mail
      * @throws Exception
      *
-     * @return Mail
      */
     private function replaceContentToken(string $key, string $value): Mail
     {
@@ -161,10 +161,25 @@ class Mail extends Model
         return $this;
     }
 
+    /**
+     * Send Mail using $outbox or get from app
+     *
+     * @param Outbox|null $outbox
+     *
+     * @throws \atk4\core\Exception
+     */
     public function send(?Outbox $outbox = null): void
     {
+        // if outbox is null check if App is present and has outbox added
         if (null === $outbox && null !== $this->app && method_exists($this->app, 'getOutbox')) {
             $outbox = $this->app->getOutbox();
+        }
+
+        // if still null throw exception
+        if (null === $outbox) {
+            $exc = new \atk4\core\Exception('$outbox is null and App has no Outbox');
+            $exc->addSolution('Add Outbox object to App');
+            throw $exc->addSolution('Call method send with Outbox != null');
         }
 
         $outbox->send($this);

@@ -25,14 +25,14 @@ class Outbox
      *
      * @var MailerInterface
      */
-    private $mailer;
+    protected $mailer;
 
     /**
      * Default Mail model.
      *
      * @var Mail
      */
-    private $model = Mail::class;
+    protected $model = Mail::class;
 
     public function __construct($defaults = [])
     {
@@ -41,7 +41,7 @@ class Outbox
         }
 
         if (is_array($defaults['mailer'])) {
-            $class              = array_pop($defaults['mailer']);
+            $class = array_pop($defaults['mailer']);
             $defaults['mailer'] = new $class($defaults['mailer']);
         }
 
@@ -55,9 +55,10 @@ class Outbox
     {
         $this->_init();
 
+        // Setup app, if present
         if (null !== $this->app) {
             $this->app->addMethod(
-                'getOutBox',
+                'getOutbox',
                 function (): self {
                     return $this;
                 }
@@ -78,7 +79,7 @@ class Outbox
         }
 
         $this->mailer = $this->factory($this->mailer);
-        $this->model  = $this->factory($this->model);
+        $this->model = $this->factory($this->model);
 
         if (!is_a($this->mailer, MailerInterface::class)) {
             $exc = new Exception('Mailer must be a subclass of MailerInterface');
@@ -94,9 +95,31 @@ class Outbox
         }
     }
 
+    public function callableSend(callable $send): void
+    {
+        $mail = $send($this->new());
+        $this->send($mail);
+    }
+
     public function new(): Mail
     {
         return clone $this->model;
+    }
+
+    /**
+     * @param Mail $mail
+     *
+     * @return Mail
+     * @throws Exception
+     *
+     */
+    public function send(Mail $mail): Mail
+    {
+        $this->validateOutbox();
+
+        $mail->hook('beforeSend');
+        $this->mailer->send($mail);
+        $mail->hook('afterSend');
     }
 
     /**
@@ -109,27 +132,5 @@ class Outbox
             $exc->addSolution('if you use outbox with App, outbox must be add to app using method App::add');
             throw $exc->addSolution('if you use outbox without App, you need to call init() before use');
         }
-    }
-
-    /**
-     * @param Mail $mail
-     *
-     * @throws Exception
-     *
-     * @return Mail
-     */
-    public function send(Mail $mail): Mail
-    {
-        $this->validateOutbox();
-
-        $mail->hook('beforeSend');
-        $this->mailer->send($mail);
-        $mail->hook('afterSend');
-    }
-
-    public function callableSend(callable $send): void
-    {
-        $mail = $send($this->new());
-        $this->send($mail);
     }
 }

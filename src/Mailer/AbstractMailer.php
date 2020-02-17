@@ -13,8 +13,8 @@ use PHPMailer\PHPMailer\SMTP as PHPMailerSMTP;
 class AbstractMailer implements MailerInterface
 {
     const SMTP_SECURE_NULL = '';
-    const SMTP_SECURE_TLS  = 'tls';
-    const SMTP_SECURE_SSL  = 'ssl';
+    const SMTP_SECURE_TLS = 'tls';
+    const SMTP_SECURE_SSL = 'ssl';
 
     use DIContainerTrait;
 
@@ -43,8 +43,8 @@ class AbstractMailer implements MailerInterface
 
         $this->phpmailer->SMTPDebug = $this->debug;
 
-        $this->phpmailer->Host       = $this->host;
-        $this->phpmailer->Port       = $this->port;
+        $this->phpmailer->Host = $this->host;
+        $this->phpmailer->Port = $this->port;
         $this->phpmailer->SMTPSecure = $this->secure;
 
         $this->phpmailer->SMTPAuth = $this->auth;
@@ -76,7 +76,7 @@ class AbstractMailer implements MailerInterface
 
             $this->addAddress(
                 $mail,
-                'replyto',
+                'bcc',
                 function ($address): void {
                     $this->phpmailer->addBCC($address->get('email'), $address->get('name'));
                 }
@@ -110,7 +110,7 @@ class AbstractMailer implements MailerInterface
         /* @todo insert MailResponse - every mailer has a different way of "response" */
     }
 
-    private function addAddress(Mail $mail, string $ref_name, callable $func): void
+    protected function addAddress(Mail $mail, string $ref_name, callable $func): void
     {
         foreach ($mail->ref($ref_name) as $id => $address) {
             $func($address);

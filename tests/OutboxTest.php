@@ -58,7 +58,11 @@ class OutboxTest extends \PHPUnit_Framework_TestCase
         $outbox->callableSend(static function(Mail $mail) use ($user_model) {
 
            $mail->withTemplateIdentifier('test')
-                ->replaceContent('test','testing')
+               ->replaceContent('test','testing')
+               ->replaceContent([
+                   'array_token_1' => 'token_content_1',
+                   'array_token_2' => 'token_content_2',
+               ],'testing')
                 ->replaceContent( $user_model, 'user');
 
             return $mail;

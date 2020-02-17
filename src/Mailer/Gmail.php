@@ -18,7 +18,5 @@ class Gmail extends SMTP
         }
 
         parent::__construct($defaults);
-
-        $this->phpmailer->isSMTP();
     }
 }
