@@ -6,6 +6,7 @@ namespace atk4\outbox\Mailer;
 use atk4\core\DIContainerTrait;
 use atk4\outbox\MailerInterface;
 use atk4\outbox\Model\Mail;
+use atk4\outbox\Model\MailResponse;
 use Exception;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP as PHPMailerSMTP;
@@ -54,6 +55,8 @@ class AbstractMailer implements MailerInterface
 
     public function send(Mail $mail): void
     {
+        $mail_response = $mail->newInstance(MailResponse::class);
+
         try {
             $from = $mail->ref('from');
             $this->phpmailer->setFrom($from->get('email'), $from->get('name'));
@@ -101,13 +104,23 @@ class AbstractMailer implements MailerInterface
             $this->phpmailer->send();
             $mail->set('status', Mail::STATUS_SENT);
             $mail->save();
-        } catch (Exception $exception) {
+
+            // save successful MailResponse
+            $mail_response->save(["email_id"=> $mail->id]);
+
+        } catch (\PHPMailer\PHPMailer\Exception $exception) {
             $mail->set('status', Mail::STATUS_ERROR);
             $mail->save();
+
+            // save successful MailResponse
+            $mail_response->save([
+                "email_id"=> $mail->id,
+                "code" => $exception->getCode(),
+                "message" => $exception->getMessage()
+            ]);
+
             throw $exception;
         }
-
-        /* @todo insert MailResponse - every mailer has a different way of "response" */
     }
 
     protected function addAddress(Mail $mail, string $ref_name, callable $func): void
