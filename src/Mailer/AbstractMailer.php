@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace atk4\outbox\Mailer;
@@ -107,7 +108,6 @@ class AbstractMailer implements MailerInterface
 
             // save successful MailResponse
             $mail_response->save(["email_id"=> $mail->id]);
-
         } catch (\PHPMailer\PHPMailer\Exception $exception) {
             $mail->set('status', Mail::STATUS_ERROR);
             $mail->save();

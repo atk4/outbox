@@ -14,8 +14,8 @@ use atk4\ui\App;
  */
 class OutboxTest extends \PHPUnit_Framework_TestCase
 {
-    public function getApp() : App {
-
+    public function getApp(): App
+    {
         $app = new App();
         $app->add([
             Outbox::class,
@@ -40,7 +40,7 @@ class OutboxTest extends \PHPUnit_Framework_TestCase
         /** @var Mail $mail */
         $mail = $outbox->new()
                        ->withTemplateIdentifier('test')
-                       ->replaceContent('test','testing')
+                       ->replaceContent('test', 'testing')
         ;
 
         $outbox->send($mail);
@@ -55,15 +55,14 @@ class OutboxTest extends \PHPUnit_Framework_TestCase
         $outbox = $app->getOutbox();
 
         /** @var Mail $mail */
-        $outbox->callableSend(static function(Mail $mail) use ($user_model) {
-
-           $mail->withTemplateIdentifier('test')
-               ->replaceContent('test','testing')
+        $outbox->callableSend(static function (Mail $mail) use ($user_model) {
+            $mail->withTemplateIdentifier('test')
+               ->replaceContent('test', 'testing')
                ->replaceContent([
                    'array_token_1' => 'token_content_1',
                    'array_token_2' => 'token_content_2',
-               ],'testing')
-                ->replaceContent( $user_model, 'user');
+               ], 'testing')
+                ->replaceContent($user_model, 'user');
 
             return $mail;
         });
