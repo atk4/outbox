@@ -78,8 +78,6 @@ class Bootstrap
     }
 
     /**
-     * @param MailTemplate $mail_template
-     *
      * @throws Exception
      * @throws \atk4\core\Exception
      */
@@ -107,8 +105,6 @@ class Bootstrap
     }
 
     /**
-     * @param MailTemplate $mail_template
-     *
      * @throws Exception
      * @throws \atk4\core\Exception
      */

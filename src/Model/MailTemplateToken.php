@@ -8,11 +8,12 @@ use atk4\data\Model;
 
 class MailTemplateToken extends Model
 {
+    public $id_field = 'token';
+
     public function init(): void
     {
         parent::init();
-
-        $this->addField('token');
+        $this->getField('token')->type = 'string';
         $this->addField('description');
     }
 }

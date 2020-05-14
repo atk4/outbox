@@ -8,10 +8,12 @@ use atk4\data\Model;
 
 class MailHeader extends Model
 {
+    public $id_field = 'name';
+
     public function init(): void
     {
         parent::init();
-        $this->addField('name');
+        $this->getField('name')->type = 'string';
         $this->addField('value');
     }
 }

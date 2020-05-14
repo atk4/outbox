@@ -8,11 +8,13 @@ use atk4\data\Model;
 
 class MailAddress extends Model
 {
+    public $id_field = 'email';
+
     public function init(): void
     {
         parent::init();
 
-        $this->addField('email');
+        $this->getField('email')->type = 'string';
         $this->addField('name');
     }
 }

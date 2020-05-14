@@ -12,7 +12,7 @@ use atk4\ui\Loader;
 include dirname(__DIR__) . '/vendor/autoload.php';
 include __DIR__ . '/db.php';
 
-$app = new App();
+$app = new App(['title' => 'Agile Toolkit - Outbox']);
 $app->db = $db;
 $app->initLayout(Admin::class);
 $app->add([
@@ -29,7 +29,6 @@ $app->add([
 
 $loader = Loader::addTo($app, ['appStickyCb' => 'true']);
 $loader->set(function (Loader $l) {
-
     $route = $l->app->stickyGet('route');
     $route = empty($route) ? 'mail' : $route;
 
@@ -40,6 +39,7 @@ $loader->set(function (Loader $l) {
             break;
         case 'template':
             MailTemplateAdmin::addTo($l);
+
             break;
     }
 });

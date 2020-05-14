@@ -62,20 +62,18 @@ class MailTemplate extends Model
 
         $this->set('tokens', []);
 
+        // @todo can be done better?
         foreach ($matches as [$match, $token]) {
-            $count = $this->ref('tokens')
-                ->addCondition('token', $token)
-                ->action('count')
-                ->getOne();
-
-            if ($count === 0) {
-                $new_tokens[] = [
-                    'token' => $token,
-                    'description' => $tokens[$token]['description'] ?? '',
-                ];
+            if (in_array($token, $tokens, true)) {
+                continue;
             }
+
+            $new_tokens[$token] = [
+                'token' => $token,
+                'description' => $tokens[$token]['description'] ?? '',
+            ];
         }
 
-        $this->set('tokens', $new_tokens);
+        $this->set('tokens', array_values($new_tokens));
     }
 }
