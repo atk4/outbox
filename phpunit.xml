@@ -1,6 +1,5 @@
 <phpunit colors="true" bootstrap="vendor/autoload.php" printerClass="atk4\core\AtkPhpunit\ResultPrinter">
     <php>
-        <env name="SQLITE_DSN" value="sqlite:./../db.sqlite" />
         <env name="MYSQL_DSN" value="mysql://atk4_test:atk4_pass@localhost/atk4_test__outbox" />
     </php>
     <filter>

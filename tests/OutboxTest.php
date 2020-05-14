@@ -18,10 +18,7 @@ class OutboxTest extends TestCase
     private function getApp(): App
     {
         $app = new App();
-        $app->db = Bootstrap::instance()->_getFromCollection(
-            'persistence',
-            'elements'
-        );
+        $app->db = Bootstrap::instance()->el('persistence');
         $app->initLayout(Generic::class);
         $app->add([
             Outbox::class,

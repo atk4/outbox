@@ -26,62 +26,27 @@ class Bootstrap
         }
 
         $self = self::instance();
-        $self->_addIntoCollection(
-            'persistence',
-            Persistence::connect(getenv('MYSQL_DSN')),
-            'elements'
-        );
-        $self->_addIntoCollection(
-            'mail_model',
-            new Mail($self->_getFromCollection('persistence', 'elements')),
-            'elements'
-        );
-        $self->_addIntoCollection(
-            'mail_template',
-            new MailTemplate($self->_getFromCollection(
-                'persistence',
-                'elements'
-            )),
-            'elements'
-        );
-        $self->_addIntoCollection(
-            'mail_response',
-            new MailResponse($self->_getFromCollection(
-                'persistence',
-                'elements'
-            )),
-            'elements'
-        );
-        $self->_addIntoCollection(
-            'user_model',
-            new User($self->_getFromCollection('persistence', 'elements')),
-            'elements'
-        );
 
-        Migration::of($self->_getFromCollection(
-            'mail_model',
-            'elements'
-        ))->run();
-        Migration::of($self->_getFromCollection(
-            'mail_template',
-            'elements'
-        ))->run();
-        Migration::of($self->_getFromCollection(
-            'mail_response',
-            'elements'
-        ))->run();
-        Migration::of($self->_getFromCollection(
-            'user_model',
-            'elements'
-        ))->run();
+        $persistence = Persistence::connect(getenv('MYSQL_DSN'));
+        $mail = new Mail($persistence);
+        $mail_template = new MailTemplate($persistence);
+        $mail_response = new MailResponse($persistence);
+        $user = new User($persistence);
 
-        /** @var MailTemplate $mail_template */
-        $mail_template = $self->_getFromCollection('mail_template', 'elements');
+        Migration::of($mail)->run();
+        Migration::of($mail_template)->run();
+        Migration::of($mail_response)->run();
+        Migration::of($user)->run();
+
+        $self->el('persistence', $persistence);
+        $self->el('mail_model', $mail);
+        $self->el('mail_template', $mail_template);
+        $self->el('mail_response', $mail_response);
+        $self->el('user_model', $user);
+
         $this->prepareMailTemplate($mail_template);
         $this->prepareMailTemplateUser($mail_template);
 
-        /** @var User $user */
-        $user = $self->_getFromCollection('user_model', 'elements');
         $user->addCondition('email', 'user@email.it');
         $user->tryLoadAny();
 
@@ -103,6 +68,15 @@ class Bootstrap
         return self::$instance;
     }
 
+    public function el($name, $obj = null) {
+
+        if (null === $obj) {
+            return $this->_getFromCollection($name, 'elements');
+        }
+
+        return $this->_addIntoCollection($name, $obj, 'elements');
+    }
+
     /**
      * @param MailTemplate $mail_template
      *
@@ -110,9 +84,12 @@ class Bootstrap
      */
     private function prepareMailTemplate(MailTemplate $mail_template): void
     {
-        $mail_template = $mail_template->newInstance();
-        $mail_template->addCondition('identifier', 'template_test');
-        $mail_template->tryLoadAny();
+        $mail_template->tryLoadBy('identifier', 'template_test');
+        if ($mail_template->loaded()) {
+            return;
+        }
+
+        $mail_template->set('identifier', 'template_test');
 
         $mail_template->set('from', [
             "email" => 'sender@email.it',
@@ -135,9 +112,12 @@ class Bootstrap
      */
     private function prepareMailTemplateUser(MailTemplate $mail_template): void
     {
-        $mail_template = $mail_template->newInstance();
-        $mail_template->addCondition('identifier', 'template_test_user');
-        $mail_template->tryLoadAny();
+        $mail_template->tryLoadBy('identifier', 'template_test_user');
+        if ($mail_template->loaded()) {
+            return;
+        }
+
+        $mail_template->set('identifier', 'template_test_user');
 
         $mail_template->set('from', [
             "email" => 'sender@email.it',

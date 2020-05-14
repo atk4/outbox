@@ -59,16 +59,19 @@ class MailTemplate extends Model
         $matches = array_merge($matches, $tmp);
 
         $tokens = $this->ref('tokens')->export(null, 'token');
+        $new_tokens = [];
 
         $this->set('tokens', []);
 
         foreach ($matches as [$match,$token]) {
             if ($this->ref('tokens')->addCondition('token', $token)->action('count')->getOne() === 0) {
-                $this->ref('tokens')->save([
+                $new_tokens[] = [
                     'token'       => $token,
                     'description' => $tokens[$token]['description'] ?? ''
-                ]);
+                ];
             }
         }
+
+        $this->set('tokens', $new_tokens);
     }
 }

@@ -57,10 +57,6 @@ class Mail extends Model
 
         $this->containsMany('attachments', MailAttachment::class);
 
-        $this->addField('sent_at', ['type' => 'datetime']);
-
-        $this->addField('postpone_to', ['type' => 'datetime']);
-
         $this->addField('status', [
             'values'  => array_combine(
                 static::MAIL_STATUS,

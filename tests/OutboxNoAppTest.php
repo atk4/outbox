@@ -16,10 +16,7 @@ class OutboxNoAppTest extends TestCase
 
     public function test1()
     {
-        $mail_model = Bootstrap::instance()->_getFromCollection(
-            'mail_model',
-            'elements'
-        );
+        $mail_model = Bootstrap::instance()->el('mail_model');
 
         $outbox = new Outbox([
             'mailer' => [
@@ -51,12 +48,10 @@ class OutboxNoAppTest extends TestCase
     public function test2()
     {
         /** @var Mail $mail_model */
-        $mail_model = Bootstrap::instance()
-            ->_getFromCollection('mail_model', 'elements');
+        $mail_model = Bootstrap::instance()->el('mail_model');
 
         /** @var User $user_model */
-        $user_model = Bootstrap::instance()
-            ->_getFromCollection('user_model', 'elements');
+        $user_model = Bootstrap::instance()->el('user_model');
         $user_model->loadAny();
 
         $outbox = new Outbox([
@@ -100,9 +95,9 @@ class OutboxNoAppTest extends TestCase
     public function testExceptionNoInit()
     {
         $this->expectException(Exception::class);
+
         /** @var Mail $mail_model */
-        $mail_model = Bootstrap::instance()
-            ->_getFromCollection('mail_model', 'elements');
+        $mail_model = Bootstrap::instance()->el('mail_model');
 
         $outbox = new Outbox([
             'mailer' => [
@@ -111,12 +106,11 @@ class OutboxNoAppTest extends TestCase
             'model'  => $mail_model,
         ]);
 
-        //$outbox->init(); <-- this cause exception
+        //$outbox->init(); <-- this cause exception on send
 
         $mail = $outbox->new()
             ->withTemplateIdentifier('template_test_user')
-            ->replaceContent('token', 'Agile Toolkit')
-            ->replaceContent($user_model, 'user');
+            ->replaceContent('token', 'Agile Toolkit');
 
         $response = $outbox->send($mail);
     }

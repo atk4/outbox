@@ -10,9 +10,13 @@ class FakeMailer implements MailerInterface
 {
     public function send(Mail $mail): MailResponse
     {
+        $mail->set('status', Mail::STATUS_SENDING);
         $mail->save();
 
         $response = new MailResponse($mail->persistence);
+
+        $mail->set('status', Mail::STATUS_SENT);
+        $mail->save();
 
         return $response->save([
             'email_id' => $mail->id,
