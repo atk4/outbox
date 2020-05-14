@@ -15,7 +15,7 @@
     }
   ],
   "require": {
-    "php": ">=7.3.0",
+    "php": ">=7.2.0",
     "atk4/ui": "dev-develop",
     "phpmailer/phpmailer": "6.0.x-dev",
     "html2text/html2text": "dev-master"
@@ -24,11 +24,11 @@
     "atk4/schema": "dev-develop",
     "atk4/data": "dev-develop",
     "phpunit/phpunit": "*",
-    "satooshi/php-coveralls": "^1.0",
-    "codeclimate/php-test-reporter": "*"
+    "friendsofphp/php-cs-fixer": "^2.16",
+    "phpunit/phpcov": "*"
   },
   "require-release": {
-    "php": ">=7.3.0",
+    "php": ">=7.2.0",
     "atk4/ui": "^2.0",
     "phpmailer/phpmailer": "6.0.x-dev"
   },
