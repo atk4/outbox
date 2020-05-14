@@ -2,32 +2,43 @@
 
 namespace atk4\outbox\Test;
 
-use atk4\data\Persistence;
+use atk4\core\AtkPhpunit\TestCase;
+use atk4\data\Model;
 use atk4\outbox\Mailer\Gmail;
 use atk4\outbox\Model\Mail;
-use atk4\outbox\Model\MailTemplate;
 use atk4\outbox\Outbox;
 use atk4\ui\App;
+use atk4\ui\Layout\Generic;
 
 /**
  * Class OutboxTest
  */
-class OutboxTest extends \PHPUnit_Framework_TestCase
+class OutboxTest extends TestCase
 {
-    public function getApp() : App {
-
+    private function getApp(): App
+    {
         $app = new App();
+        $app->db = Bootstrap::instance()->_getFromCollection('persistence',
+            'elements');
+        $app->initLayout(Generic::class);
         $app->add([
             Outbox::class,
-            'mailer' => [
-                Gmail::class,
-                'username' => 'test',
-                'password' => 'password'
+            [
+                'mailer' => [
+                    FakeMailer::class
+                ],
+                'model'  => [
+                    Mail::class,
+                ],
             ],
-            'model' => [
-                Mail::class
-            ]
         ]);
+
+        return $app;
+    }
+
+    protected function setUp(): void
+    {
+        Bootstrap::instance()->setup();
     }
 
     public function testSend()
@@ -37,35 +48,65 @@ class OutboxTest extends \PHPUnit_Framework_TestCase
         /** @var Outbox $outbox */
         $outbox = $this->getApp()->getOutbox();
 
-        /** @var Mail $mail */
         $mail = $outbox->new()
-                       ->withTemplateIdentifier('test')
-                       ->replaceContent('test','testing')
-        ;
+            ->withTemplateIdentifier('template_test')
+            ->replaceContent('token', 'Agile Toolkit');
 
-        $outbox->send($mail);
+        $mail->ref('to')->save([
+            "email" => 'destination@email.it',
+            "name"  => "destination",
+        ]);
+
+        $response = $outbox->send($mail);
+
+        $this->assertEquals(
+            'hi to all,<br/>this is outbox library of Agile Toolkit.<br/><br/>have a good day.',
+            $mail->get('html')
+        );
+        $this->assertEquals($response->get('email_id'), $mail->id);
     }
 
     public function testSendCallable()
     {
         $app = $this->getApp();
-        $user_model = new User($app->db);
 
         /** @var Outbox $outbox */
-        $outbox = $app->getOutbox();
+        $outbox = $this->getApp()->getOutbox();
 
-        /** @var Mail $mail */
-        $outbox->callableSend(static function(Mail $mail) use ($user_model) {
+        $response = $outbox->callableSend(function (Mail $mail) use (&$mail2test) {
 
-           $mail->withTemplateIdentifier('test')
-               ->replaceContent('test','testing')
-               ->replaceContent([
-                   'array_token_1' => 'token_content_1',
-                   'array_token_2' => 'token_content_2',
-               ],'testing')
-                ->replaceContent( $user_model, 'user');
+            $mail->withTemplateIdentifier('template_test')
+                ->replaceContent('token', 'Agile Toolkit');
+
+            $mail->ref('to')->save([
+                "email" => 'destination@email.it',
+                "name"  => "destination",
+            ]);
+
+            $mail->onHook('afterSend', function($m, $response) {
+                $this->assertEquals(
+                    'hi to all,<br/>this is outbox library of Agile Toolkit.<br/><br/>have a good day.',
+                    $m->get('html')
+                );
+            });
 
             return $mail;
         });
+    }
+
+    public function testMailSaveAsTemplate()
+    {
+        /** @var Mail $mail_model */
+        $mail_model = Bootstrap::instance()->_getFromCollection('mail_model','elements');
+
+        $template_model = $mail_model->loadAny()->saveAsTemplate('new_mail_template');
+        $data = $template_model->get();
+        $template_model->delete();
+
+        foreach ($data as $fieldname => $value) {
+            if ($fieldname !== $template_model->id_field && $mail_model->hasField($fieldname)) {
+                $this->assertEquals($value, $mail_model->get($fieldname));
+            }
+        }
     }
 }

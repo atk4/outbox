@@ -16,9 +16,11 @@ class MailResponse extends Model
 
         $this->hasOne("email_id", Mail::class);
 
-        $this->addField("code", ['type' => 'int', 'default' => 0]);
-        $this->addField("message", ['type' => 'string']);
+        $this->addField("code", ['type' => 'integer', 'default' => 0]);
+        $this->addField("message",
+            ['type' => 'string', 'default' => 'success']);
 
-        $this->addField("timestamp", ['type' => 'datetime', 'default' => new DateTime()]);
+        $this->addField("timestamp",
+            ['type' => 'datetime', 'default' => new DateTime()]);
     }
 }

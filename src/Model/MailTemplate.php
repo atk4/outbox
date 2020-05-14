@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace atk4\outbox\Model;
 
 use atk4\data\Model;
+use atk4\ui\Exception;
 
 class MailTemplate extends Model
 {
@@ -13,10 +14,12 @@ class MailTemplate extends Model
     {
         parent::init();
 
-        $this->addFile('identifier');
+        $this->addField('identifier');
 
         $this->containsOne('from', MailAddress::class);
         $this->containsOne('replyto', MailAddress::class);
+
+        $this->containsOne('header', MailHeader::class);
 
         $this->containsMany('to', MailAddress::class);
         $this->containsMany('cc', MailAddress::class);
@@ -30,5 +33,42 @@ class MailTemplate extends Model
         $this->containsMany('attachment', MailAttachment::class);
 
         $this->containsMany('tokens', MailTemplateToken::class);
+
+        $this->onHook('beforeSave', function(MailTemplate $m) {
+            $m->refreshTokens();
+        },[],-200);
+    }
+
+    public function refreshTokens() {
+
+        $re = '/.*{{(.*)}}/m';
+
+        $matches = [];
+
+        $tmp = [];
+        preg_match_all($re, $this->get('subject'), $tmp, PREG_SET_ORDER, 0);
+        $matches = array_merge($matches, $tmp);
+
+        $tmp = [];
+        preg_match_all($re, $this->get('html'), $tmp, PREG_SET_ORDER, 0);
+        $matches = array_merge($matches, $tmp);
+
+        $tmp = [];
+        preg_match_all($re, $this->get('text'), $tmp, PREG_SET_ORDER, 0);
+        $matches = array_merge($matches, $tmp);
+
+        $tokens = $this->ref('tokens')->export(null, 'token');
+
+        $this->set('tokens', []);
+
+        foreach($matches as [$match,$token]) {
+
+            if ($this->ref('tokens')->addCondition('token', $token)->action('count')->getOne() === 0) {
+                $this->ref('tokens')->save([
+                    'token'       => $token,
+                    'description' => $tokens[$token]['description'] ?? ''
+                ]);
+            }
+        }
     }
 }

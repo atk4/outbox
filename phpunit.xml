@@ -1,0 +1,20 @@
+<phpunit colors="true" bootstrap="vendor/autoload.php" printerClass="atk4\core\AtkPhpunit\ResultPrinter">
+    <php>
+        <env name="SQLITE_DSN" value="sqlite:./../db.sqlite" />
+        <env name="MYSQL_DSN" value="mysql://atk4_test:atk4_pass@localhost/atk4_test__outbox" />
+    </php>
+    <filter>
+        <whitelist processUncoveredFilesFromWhitelist="true">
+            <directory suffix=".php">./src</directory>
+        </whitelist>
+    </filter>
+    <testsuites>
+        <testsuite name="tests">
+            <file>tests/Bootstrap.php</file>
+            <directory>tests</directory>
+        </testsuite>
+    </testsuites>
+    <logging>
+        <log type="coverage-clover" target="build/logs/clover.xml"/>
+    </logging>
+</phpunit>

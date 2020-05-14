@@ -5,13 +5,12 @@ namespace atk4\outbox\Model;
 
 use atk4\data\Model;
 
-class MailTemplateToken extends Model
+class MailHeader extends Model
 {
     public function init(): void
     {
         parent::init();
-
-        $this->addField('token');
-        $this->addField('description');
+        $this->addField('name');
+        $this->addField('value');
     }
 }

@@ -7,16 +7,12 @@ use atk4\core\DIContainerTrait;
 use atk4\outbox\MailerInterface;
 use atk4\outbox\Model\Mail;
 use atk4\outbox\Model\MailResponse;
-use Exception;
+use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP as PHPMailerSMTP;
 
 class AbstractMailer implements MailerInterface
 {
-    const SMTP_SECURE_NULL = '';
-    const SMTP_SECURE_TLS = 'tls';
-    const SMTP_SECURE_SSL = 'ssl';
-
     use DIContainerTrait;
 
     /** @var PHPMailer */
@@ -53,19 +49,25 @@ class AbstractMailer implements MailerInterface
         $this->phpmailer->Password = $this->password;
     }
 
-    public function send(Mail $mail): void
+    public function send(Mail $mail): MailResponse
     {
-        $mail_response = $mail->newInstance(MailResponse::class);
+        $mail_response = new MailResponse($mail->persistence);
 
         try {
-            $from = $mail->ref('from');
-            $this->phpmailer->setFrom($from->get('email'), $from->get('name'));
+
+            $this->phpmailer->setFrom(
+                $mail->ref('from')->get('email'),
+                $mail->ref('from')->get('name')
+            );
 
             $this->addAddress(
                 $mail,
                 'replyto',
                 function ($address): void {
-                    $this->phpmailer->addReplyTo($address->get('email'), $address->get('name'));
+                    $this->phpmailer->addReplyTo(
+                        $address->get('email'),
+                        $address->get('name')
+                    );
                 }
             );
 
@@ -73,7 +75,10 @@ class AbstractMailer implements MailerInterface
                 $mail,
                 'cc',
                 function ($address): void {
-                    $this->phpmailer->addCC($address->get('email'), $address->get('name'));
+                    $this->phpmailer->addCC(
+                        $address->get('email'),
+                        $address->get('name')
+                    );
                 }
             );
 
@@ -81,7 +86,10 @@ class AbstractMailer implements MailerInterface
                 $mail,
                 'bcc',
                 function ($address): void {
-                    $this->phpmailer->addBCC($address->get('email'), $address->get('name'));
+                    $this->phpmailer->addBCC(
+                        $address->get('email'),
+                        $address->get('name')
+                    );
                 }
             );
 
@@ -89,7 +97,12 @@ class AbstractMailer implements MailerInterface
             $this->phpmailer->msgHTML = $mail->get('html');
             $this->phpmailer->AltBody = $mail->get('text');
 
-            foreach ($mail->ref('attachments') as $model) {
+            foreach ($mail->ref('headers')->getIterator() as $model) {
+                $this->phpmailer->addCustomHeader($model->get('name'),
+                    $model->get('value'));
+            }
+
+            foreach ($mail->ref('attachments')->getIterator() as $model) {
                 $this->phpmailer->addAttachment(
                     $model->get('path'),
                     $model->get('name'),
@@ -106,26 +119,28 @@ class AbstractMailer implements MailerInterface
             $mail->save();
 
             // save successful MailResponse
-            $mail_response->save(["email_id"=> $mail->id]);
+            $mail_response->save(["email_id" => $mail->id]);
 
-        } catch (\PHPMailer\PHPMailer\Exception $exception) {
+        } catch (Exception $exception) {
             $mail->set('status', Mail::STATUS_ERROR);
             $mail->save();
 
             // save successful MailResponse
             $mail_response->save([
-                "email_id"=> $mail->id,
-                "code" => $exception->getCode(),
-                "message" => $exception->getMessage()
+                "email_id" => $mail->id,
+                "code"     => $exception->getCode(),
+                "message"  => $exception->getMessage(),
             ]);
 
             throw $exception;
         }
+
+        return $mail_response;
     }
 
     protected function addAddress(Mail $mail, string $ref_name, callable $func): void
     {
-        foreach ($mail->ref($ref_name) as $id => $address) {
+        foreach ($mail->ref($ref_name)->getIterator() as $id => $address) {
             $func($address);
         }
     }

@@ -10,6 +10,7 @@ class MailAddress extends Model
     public function init(): void
     {
         parent::init();
+
         $this->addField('email');
         $this->addField('name');
     }

@@ -1,24 +1,36 @@
 {
   "name": "atk4/outbox",
   "description": "Agile toolkit Email",
-  "minimum-stability": "beta",
+  "minimum-stability": "dev",
   "license": "MIT",
   "authors": [
+    {
+      "name": "Romans Malinovskis",
+      "email": "romans@agiletoolkit.org",
+      "homepage": "https://nearly.guru/"
+    },
     {
       "name": "Francesco Danti",
       "email": "fdanti@gmail.com"
     }
   ],
   "require": {
-    "php": "^7.3",
-    "atk4/ui": "2.0.4",
+    "php": ">=7.3.0",
+    "atk4/ui": "dev-develop",
     "phpmailer/phpmailer": "6.0.x-dev",
-    "friendsofphp/php-cs-fixer": "*"
+    "html2text/html2text": "dev-master"
   },
   "require-dev": {
+    "atk4/schema": "dev-develop",
+    "atk4/data": "dev-develop",
     "phpunit/phpunit": "*",
     "satooshi/php-coveralls": "^1.0",
     "codeclimate/php-test-reporter": "*"
+  },
+  "require-release": {
+    "php": ">=7.3.0",
+    "atk4/ui": "^2.0",
+    "phpmailer/phpmailer": "6.0.x-dev"
   },
   "autoload": {
     "psr-4": {
