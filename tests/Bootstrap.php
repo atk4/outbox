@@ -68,8 +68,8 @@ class Bootstrap
         return self::$instance;
     }
 
-    public function el($name, $obj = null) {
-
+    public function el($name, $obj = null)
+    {
         if (null === $obj) {
             return $this->_getFromCollection($name, 'elements');
         }
