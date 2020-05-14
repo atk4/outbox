@@ -27,29 +27,32 @@ $app->add([
     ],
 ]);
 
-$loader = Loader::addTo($app, ['loadEvent' => false]);
+$loader = Loader::addTo($app);
 $loader->set(function (Loader $l) {
-    switch ($l->stickyGet('route')) {
+
+    $route = $l->stickyGet('route');
+    $route = empty($route) ? 'mail' : $route;
+
+    switch ($route) {
         case 'mail':
             MailAdmin::addTo($l);
 
             break;
         case 'template':
             MailTemplateAdmin::addTo($l);
-
             break;
     }
 });
 
 /** @var Admin $layout */
 $layout = $app->layout;
-$layout->menuLeft->addItem(['Mail Admin', 'icon' => 'envelope'])->on(
-    'click',
-    $loader->jsLoad(['route' => 'mail'])
-);
-$layout->menuLeft->addItem(['Template Admin', 'icon' => 'cogs'])->on(
-    'click',
-    $loader->jsLoad(['route' => 'template'])
-);
+
+$layout->menuLeft
+    ->addItem(['Mail Tracking', 'icon' => 'envelope'])
+    ->on('click', $loader->jsLoad(['route' => 'mail']));
+
+$layout->menuLeft
+    ->addItem(['Template Admin', 'icon' => 'cogs'])
+    ->on('click', $loader->jsLoad(['route' => 'template']));
 
 $app->run();
