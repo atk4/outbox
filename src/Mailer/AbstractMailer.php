@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace atk4\outbox\Mailer;
@@ -54,7 +55,6 @@ class AbstractMailer implements MailerInterface
         $mail_response = new MailResponse($mail->persistence);
 
         try {
-
             $this->phpmailer->setFrom(
                 $mail->ref('from')->get('email'),
                 $mail->ref('from')->get('name')
@@ -98,8 +98,10 @@ class AbstractMailer implements MailerInterface
             $this->phpmailer->AltBody = $mail->get('text');
 
             foreach ($mail->ref('headers')->getIterator() as $model) {
-                $this->phpmailer->addCustomHeader($model->get('name'),
-                    $model->get('value'));
+                $this->phpmailer->addCustomHeader(
+                    $model->get('name'),
+                    $model->get('value')
+                );
             }
 
             foreach ($mail->ref('attachments')->getIterator() as $model) {
@@ -120,7 +122,6 @@ class AbstractMailer implements MailerInterface
 
             // save successful MailResponse
             $mail_response->save(["email_id" => $mail->id]);
-
         } catch (Exception $exception) {
             $mail->set('status', Mail::STATUS_ERROR);
             $mail->save();

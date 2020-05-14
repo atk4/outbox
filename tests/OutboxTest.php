@@ -18,8 +18,10 @@ class OutboxTest extends TestCase
     private function getApp(): App
     {
         $app = new App();
-        $app->db = Bootstrap::instance()->_getFromCollection('persistence',
-            'elements');
+        $app->db = Bootstrap::instance()->_getFromCollection(
+            'persistence',
+            'elements'
+        );
         $app->initLayout(Generic::class);
         $app->add([
             Outbox::class,
@@ -74,7 +76,6 @@ class OutboxTest extends TestCase
         $outbox = $this->getApp()->getOutbox();
 
         $response = $outbox->callableSend(function (Mail $mail) use (&$mail2test) {
-
             $mail->withTemplateIdentifier('template_test')
                 ->replaceContent('token', 'Agile Toolkit');
 
@@ -83,7 +84,7 @@ class OutboxTest extends TestCase
                 "name"  => "destination",
             ]);
 
-            $mail->onHook('afterSend', function($m, $response) {
+            $mail->onHook('afterSend', function ($m, $response) {
                 $this->assertEquals(
                     'hi to all,<br/>this is outbox library of Agile Toolkit.<br/><br/>have a good day.',
                     $m->get('html')
@@ -97,7 +98,7 @@ class OutboxTest extends TestCase
     public function testMailSaveAsTemplate()
     {
         /** @var Mail $mail_model */
-        $mail_model = Bootstrap::instance()->_getFromCollection('mail_model','elements');
+        $mail_model = Bootstrap::instance()->_getFromCollection('mail_model', 'elements');
 
         $template_model = $mail_model->loadAny()->saveAsTemplate('new_mail_template');
         $data = $template_model->get();

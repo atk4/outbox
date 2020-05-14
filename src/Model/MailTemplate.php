@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace atk4\outbox\Model;
@@ -34,13 +35,13 @@ class MailTemplate extends Model
 
         $this->containsMany('tokens', MailTemplateToken::class);
 
-        $this->onHook('beforeSave', function(MailTemplate $m) {
+        $this->onHook('beforeSave', function (MailTemplate $m) {
             $m->refreshTokens();
-        },[],-200);
+        }, [], -200);
     }
 
-    public function refreshTokens() {
-
+    public function refreshTokens()
+    {
         $re = '/.*{{(.*)}}/m';
 
         $matches = [];
@@ -61,8 +62,7 @@ class MailTemplate extends Model
 
         $this->set('tokens', []);
 
-        foreach($matches as [$match,$token]) {
-
+        foreach ($matches as [$match,$token]) {
             if ($this->ref('tokens')->addCondition('token', $token)->action('count')->getOne() === 0) {
                 $this->ref('tokens')->save([
                     'token'       => $token,

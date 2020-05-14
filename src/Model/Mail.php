@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace atk4\outbox\Model;
@@ -61,8 +62,10 @@ class Mail extends Model
         $this->addField('postpone_to', ['type' => 'datetime']);
 
         $this->addField('status', [
-            'values'  => array_combine(static::MAIL_STATUS,
-                static::MAIL_STATUS),
+            'values'  => array_combine(
+                static::MAIL_STATUS,
+                static::MAIL_STATUS
+            ),
             'default' => static::STATUS_DRAFT,
         ]);
 
@@ -187,8 +190,10 @@ class Mail extends Model
     public function send(?Outbox $outbox = null): MailResponse
     {
         // if outbox is null check if App is present and has outbox added
-        if (null === $outbox && null !== $this->app && method_exists($this->app,
-                'getOutbox')) {
+        if (null === $outbox && null !== $this->app && method_exists(
+            $this->app,
+            'getOutbox'
+        )) {
             $outbox = $this->app->getOutbox();
         }
 

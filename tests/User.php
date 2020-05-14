@@ -3,7 +3,6 @@
 
 namespace atk4\outbox\Test;
 
-
 use atk4\data\Model;
 use atk4\data\Persistence\Static_;
 use atk4\outbox\Model\MailAddress;

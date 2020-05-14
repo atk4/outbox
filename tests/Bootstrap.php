@@ -12,7 +12,6 @@ use atk4\schema\Migration;
 
 class Bootstrap
 {
-
     use CollectionTrait;
 
     /** @var self */
@@ -22,35 +21,59 @@ class Bootstrap
 
     public function setup()
     {
-
         if (!empty(self::instance()->elements)) {
             return;
         }
 
         $self = self::instance();
-        $self->_addIntoCollection('persistence',
-            Persistence::connect(getenv('MYSQL_DSN')), 'elements');
-        $self->_addIntoCollection('mail_model',
+        $self->_addIntoCollection(
+            'persistence',
+            Persistence::connect(getenv('MYSQL_DSN')),
+            'elements'
+        );
+        $self->_addIntoCollection(
+            'mail_model',
             new Mail($self->_getFromCollection('persistence', 'elements')),
-            'elements');
-        $self->_addIntoCollection('mail_template',
-            new MailTemplate($self->_getFromCollection('persistence',
-                'elements')), 'elements');
-        $self->_addIntoCollection('mail_response',
-            new MailResponse($self->_getFromCollection('persistence',
-                'elements')), 'elements');
-        $self->_addIntoCollection('user_model',
+            'elements'
+        );
+        $self->_addIntoCollection(
+            'mail_template',
+            new MailTemplate($self->_getFromCollection(
+                'persistence',
+                'elements'
+            )),
+            'elements'
+        );
+        $self->_addIntoCollection(
+            'mail_response',
+            new MailResponse($self->_getFromCollection(
+                'persistence',
+                'elements'
+            )),
+            'elements'
+        );
+        $self->_addIntoCollection(
+            'user_model',
             new User($self->_getFromCollection('persistence', 'elements')),
-            'elements');
+            'elements'
+        );
 
-        Migration::of($self->_getFromCollection('mail_model',
-            'elements'))->run();
-        Migration::of($self->_getFromCollection('mail_template',
-            'elements'))->run();
-        Migration::of($self->_getFromCollection('mail_response',
-            'elements'))->run();
-        Migration::of($self->_getFromCollection('user_model',
-            'elements'))->run();
+        Migration::of($self->_getFromCollection(
+            'mail_model',
+            'elements'
+        ))->run();
+        Migration::of($self->_getFromCollection(
+            'mail_template',
+            'elements'
+        ))->run();
+        Migration::of($self->_getFromCollection(
+            'mail_response',
+            'elements'
+        ))->run();
+        Migration::of($self->_getFromCollection(
+            'user_model',
+            'elements'
+        ))->run();
 
         /** @var MailTemplate $mail_template */
         $mail_template = $self->_getFromCollection('mail_template', 'elements');
