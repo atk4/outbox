@@ -1,6 +1,5 @@
 <?php
 
-
 namespace atk4\outbox\Test;
 
 use atk4\data\Model;

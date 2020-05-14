@@ -7,18 +7,17 @@ namespace atk4\outbox\Model;
 use atk4\data\Exception;
 use atk4\data\Model;
 use atk4\outbox\Outbox;
-use Html2Text\Html2Text;
 
 /**
  * Class Mail.
  */
 class Mail extends Model
 {
-    public const STATUS_DRAFT   = 'DRAFT';
-    public const STATUS_READY   = 'READY';
+    public const STATUS_DRAFT = 'DRAFT';
+    public const STATUS_READY = 'READY';
     public const STATUS_SENDING = 'SENDING';
-    public const STATUS_SENT    = 'SENT';
-    public const STATUS_ERROR   = 'ERROR';
+    public const STATUS_SENT = 'SENT';
+    public const STATUS_ERROR = 'ERROR';
 
     public const MAIL_STATUS = [
         self::STATUS_DRAFT,
@@ -58,7 +57,7 @@ class Mail extends Model
         $this->containsMany('attachments', MailAttachment::class);
 
         $this->addField('status', [
-            'values'  => array_combine(
+            'values' => array_combine(
                 static::MAIL_STATUS,
                 static::MAIL_STATUS
             ),
@@ -67,18 +66,14 @@ class Mail extends Model
 
         $this->hasMany('response', [
             MailResponse::class,
-            'their_field' => "email_id",
+            'their_field' => 'email_id',
         ]);
     }
 
     /**
-     * @param string $identifier
-     *
      * @throws Exception|\atk4\core\Exception
-     *
-     * @return Mail
      */
-    public function withTemplateIdentifier(string $identifier): Mail
+    public function withTemplateIdentifier(string $identifier): self
     {
         /** @var MailTemplate $template */
         $template = new $this->mail_template_default($this->persistence);
@@ -96,13 +91,9 @@ class Mail extends Model
     /**
      * Set data from MailTemplate.
      *
-     * @param MailTemplate $template
-     *
      * @throws Exception
-     *
-     * @return Mail
      */
-    public function withTemplate(MailTemplate $template): Mail
+    public function withTemplate(MailTemplate $template): self
     {
         $this->allowProcessing();
 
@@ -122,19 +113,17 @@ class Mail extends Model
      */
     private function allowProcessing(): void
     {
-        if (0 !== (int)$this->get('status')) {
+        if ((int) $this->get('status') !== 0) {
             throw new Exception('You cannot modify a mail not in draft status');
         }
     }
 
     /**
      * @param string|array<string,string>|Model $tokens
-     * @param string|null                       $prefix
      *
      * @throws Exception
-     * @return Mail
      */
-    public function replaceContent($tokens, ?string $prefix = null): Mail
+    public function replaceContent($tokens, string $prefix = null): self
     {
         if (is_string($tokens)) {
             $tokens = [$tokens => $prefix];
@@ -146,7 +135,7 @@ class Mail extends Model
         }
 
         foreach ($tokens as $key => $value) {
-            $key = '{{' . (null === $prefix ? $key : $prefix . '.' . $key) . '}}';
+            $key = '{{' . ($prefix === null ? $key : $prefix . '.' . $key) . '}}';
             $this->replaceContentToken($key, $value);
         }
 
@@ -156,14 +145,9 @@ class Mail extends Model
     /**
      * Replace in subject, html and text using key with value.
      *
-     * @param string $key
-     * @param string $value
-     *
      * @throws Exception
-     *
-     * @return Mail
      */
-    private function replaceContentToken(string $key, string $value): Mail
+    private function replaceContentToken(string $key, string $value): self
     {
         $this->allowProcessing();
 
@@ -175,18 +159,14 @@ class Mail extends Model
     }
 
     /**
-     * Send Mail using $outbox or get from app
-     *
-     * @param Outbox|null $outbox
+     * Send Mail using $outbox or get from app.
      *
      * @throws \atk4\core\Exception
-     *
-     * @return MailResponse
      */
-    public function send(?Outbox $outbox = null): MailResponse
+    public function send(Outbox $outbox = null): MailResponse
     {
         // if outbox is null check if App is present and has outbox added
-        if (null === $outbox && null !== $this->app && method_exists(
+        if ($outbox === null && $this->app !== null && method_exists(
             $this->app,
             'getOutbox'
         )) {
@@ -194,7 +174,7 @@ class Mail extends Model
         }
 
         // if still null throw exception
-        if (null === $outbox) {
+        if ($outbox === null) {
             throw new Exception([
                 '$outbox is null and App has no Outbox',
                 'solutions' => [

@@ -9,11 +9,6 @@ use atk4\outbox\Outbox;
 
 class OutboxNoAppTest extends TestCase
 {
-    protected function setUp(): void
-    {
-        Bootstrap::instance()->setup();
-    }
-
     public function test1()
     {
         $mail_model = Bootstrap::instance()->el('mail_model');
@@ -22,7 +17,7 @@ class OutboxNoAppTest extends TestCase
             'mailer' => [
                 FakeMailer::class,
             ],
-            'model'  => $mail_model,
+            'model' => $mail_model,
         ]);
 
         $outbox->init();
@@ -32,17 +27,17 @@ class OutboxNoAppTest extends TestCase
             ->replaceContent('token', 'Agile Toolkit');
 
         $mail->ref('to')->save([
-            "email" => 'destination@email.it',
-            "name"  => "destination",
+            'email' => 'destination@email.it',
+            'name' => 'destination',
         ]);
 
         $response = $outbox->send($mail);
 
-        $this->assertEquals(
+        $this->assertSame(
             'hi to all,<br/>this is outbox library of Agile Toolkit.<br/><br/>have a good day.',
             $mail->get('html')
         );
-        $this->assertEquals($response->get('email_id'), $mail->id);
+        $this->assertSame($response->get('email_id'), $mail->id);
     }
 
     public function test2()
@@ -58,7 +53,7 @@ class OutboxNoAppTest extends TestCase
             'mailer' => [
                 FakeMailer::class,
             ],
-            'model'  => $mail_model,
+            'model' => $mail_model,
         ]);
 
         $outbox->init();
@@ -68,29 +63,43 @@ class OutboxNoAppTest extends TestCase
             ->replaceContent('token', 'Agile Toolkit')
             ->replaceContent($user_model, 'user');
 
-        $mail->ref('to')->save(['email' => 'test@email.it', 'name' => 'test email']);
+        $mail->ref('to')->save([
+            'email' => 'test@email.it',
+            'name' => 'test email',
+        ]);
         $mail->ref('to')->save($user_model->getMailAddress()->get());
 
-        $mail->ref('cc')->save(['email' => 'test@email.it', 'name' => 'test email']);
+        $mail->ref('cc')->save([
+            'email' => 'test@email.it',
+            'name' => 'test email',
+        ]);
         $mail->ref('cc')->save($user_model->getMailAddress()->get());
 
-        $mail->ref('bcc')->save(['email' => 'test@email.it', 'name' => 'test email']);
+        $mail->ref('bcc')->save([
+            'email' => 'test@email.it',
+            'name' => 'test email',
+        ]);
         $mail->ref('bcc')->save($user_model->getMailAddress()->get());
 
-        $mail->ref('replyto')->save(['email' => 'test@email.it', 'name' => 'test email']);
+        $mail->ref('replyto')->save([
+            'email' => 'test@email.it',
+            'name' => 'test email',
+        ]);
         $mail->ref('replyto')->save($user_model->getMailAddress()->get());
 
-        $mail->ref('headers')->save(['name' => 'x-custom-header', 'value' => 'Agile Toolkit']);
+        $mail->ref('headers')->save([
+            'name' => 'x-custom-header',
+            'value' => 'Agile Toolkit',
+        ]);
 
         $response = $outbox->send($mail);
 
-        $this->assertEquals(
+        $this->assertSame(
             'hi to all,<br/>this is outbox library of Agile Toolkit.<br/><br/>have a good day.<br/><br/>John Doe',
             $mail->get('html')
         );
-        $this->assertEquals($response->get('email_id'), $mail->id);
+        $this->assertSame($response->get('email_id'), $mail->id);
     }
-
 
     public function testExceptionNoInit()
     {
@@ -103,7 +112,7 @@ class OutboxNoAppTest extends TestCase
             'mailer' => [
                 FakeMailer::class,
             ],
-            'model'  => $mail_model,
+            'model' => $mail_model,
         ]);
 
         //$outbox->init(); <-- this cause exception on send
@@ -113,5 +122,10 @@ class OutboxNoAppTest extends TestCase
             ->replaceContent('token', 'Agile Toolkit');
 
         $response = $outbox->send($mail);
+    }
+
+    protected function setUp(): void
+    {
+        Bootstrap::instance()->setup();
     }
 }

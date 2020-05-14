@@ -51,15 +51,15 @@ class Bootstrap
         $user->tryLoadAny();
 
         $user->save([
-            'email'      => 'user@email.it',
+            'email' => 'user@email.it',
             'first_name' => 'John',
-            'last_name'  => 'Doe',
+            'last_name' => 'Doe',
         ]);
     }
 
     public static function instance(): self
     {
-        if (null !== self::$instance) {
+        if (self::$instance !== null) {
             return self::$instance;
         }
 
@@ -68,9 +68,9 @@ class Bootstrap
         return self::$instance;
     }
 
-    public function el($name, $obj = null) {
-
-        if (null === $obj) {
+    public function el($name, $obj = null)
+    {
+        if ($obj === null) {
             return $this->_getFromCollection($name, 'elements');
         }
 
@@ -78,8 +78,6 @@ class Bootstrap
     }
 
     /**
-     * @param MailTemplate $mail_template
-     *
      * @throws Exception
      */
     private function prepareMailTemplate(MailTemplate $mail_template): void
@@ -92,8 +90,8 @@ class Bootstrap
         $mail_template->set('identifier', 'template_test');
 
         $mail_template->set('from', [
-            "email" => 'sender@email.it',
-            "name"  => "sender",
+            'email' => 'sender@email.it',
+            'name' => 'sender',
         ]);
 
         $mail_template->set('subject', 'subject mail for {{token}}');
@@ -106,8 +104,6 @@ class Bootstrap
     }
 
     /**
-     * @param MailTemplate $mail_template
-     *
      * @throws Exception
      */
     private function prepareMailTemplateUser(MailTemplate $mail_template): void
@@ -120,8 +116,8 @@ class Bootstrap
         $mail_template->set('identifier', 'template_test_user');
 
         $mail_template->set('from', [
-            "email" => 'sender@email.it',
-            "name"  => "sender",
+            'email' => 'sender@email.it',
+            'name' => 'sender',
         ]);
 
         $content = 'hi to all,|this is outbox library of {{token}}.||have a good day.||{{user.first_name}} {{user.last_name}}';

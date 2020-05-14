@@ -64,7 +64,7 @@ class Outbox
         $this->_init();
 
         // Setup app, if present
-        if (null !== $this->app) {
+        if ($this->app !== null) {
             $this->app->addMethod(
                 'getOutbox',
                 function (): self {
@@ -110,6 +110,7 @@ class Outbox
     public function callableSend(callable $send): MailResponse
     {
         $mail = $send($this->new());
+
         return $this->send($mail);
     }
 
@@ -137,11 +138,7 @@ class Outbox
     }
 
     /**
-     * @param Mail $mail
-     *
      * @throws Exception
-     *
-     * @return MailResponse
      */
     public function send(Mail $mail): MailResponse
     {

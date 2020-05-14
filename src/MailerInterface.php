@@ -10,8 +10,8 @@ use atk4\outbox\Model\MailResponse;
 interface MailerInterface
 {
     const SMTP_SECURE_NULL = '';
-    const SMTP_SECURE_TLS  = 'tls';
-    const SMTP_SECURE_SSL  = 'ssl';
+    const SMTP_SECURE_TLS = 'tls';
+    const SMTP_SECURE_SSL = 'ssl';
 
     public function send(Mail $Message): MailResponse;
 }

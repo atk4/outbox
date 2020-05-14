@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace atk4\outbox\Model;
 
 use atk4\data\Model;
-use atk4\ui\Exception;
 
 class MailTemplate extends Model
 {
-    public $table = "mail_template";
+    public $table = 'mail_template';
 
     public function init(): void
     {
@@ -35,7 +34,7 @@ class MailTemplate extends Model
 
         $this->containsMany('tokens', MailTemplateToken::class);
 
-        $this->onHook('beforeSave', function (MailTemplate $m) {
+        $this->onHook('beforeSave', function (self $m) {
             $m->refreshTokens();
         }, [], -200);
     }
@@ -63,11 +62,16 @@ class MailTemplate extends Model
 
         $this->set('tokens', []);
 
-        foreach ($matches as [$match,$token]) {
-            if ($this->ref('tokens')->addCondition('token', $token)->action('count')->getOne() === 0) {
+        foreach ($matches as [$match, $token]) {
+            $count = $this->ref('tokens')
+                ->addCondition('token', $token)
+                ->action('count')
+                ->getOne();
+
+            if ($count === 0) {
                 $new_tokens[] = [
-                    'token'       => $token,
-                    'description' => $tokens[$token]['description'] ?? ''
+                    'token' => $token,
+                    'description' => $tokens[$token]['description'] ?? '',
                 ];
             }
         }

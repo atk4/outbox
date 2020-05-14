@@ -2,10 +2,8 @@
 
 namespace atk4\outbox;
 
-use atk4\outbox\Model\Mail;
 use atk4\outbox\Model\MailTemplate;
 use atk4\ui\CRUD;
-use atk4\ui\View;
 
 class MailTemplateAdmin extends CRUD
 {

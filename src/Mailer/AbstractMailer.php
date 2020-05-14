@@ -121,16 +121,16 @@ class AbstractMailer implements MailerInterface
             $mail->save();
 
             // save successful MailResponse
-            $mail_response->save(["email_id" => $mail->id]);
+            $mail_response->save(['email_id' => $mail->id]);
         } catch (Exception $exception) {
             $mail->set('status', Mail::STATUS_ERROR);
             $mail->save();
 
-            // save successful MailResponse
+            // save unsuccessful MailResponse
             $mail_response->save([
-                "email_id" => $mail->id,
-                "code"     => $exception->getCode(),
-                "message"  => $exception->getMessage(),
+                'email_id' => $mail->id,
+                'code' => $exception->getCode(),
+                'message' => $exception->getMessage(),
             ]);
 
             throw $exception;

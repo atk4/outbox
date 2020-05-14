@@ -15,16 +15,16 @@ class MailResponse extends Model
     {
         parent::init();
 
-        $this->hasOne("email_id", Mail::class);
+        $this->hasOne('email_id', Mail::class);
 
-        $this->addField("code", ['type' => 'integer', 'default' => 0]);
+        $this->addField('code', ['type' => 'integer', 'default' => 0]);
         $this->addField(
-            "message",
+            'message',
             ['type' => 'string', 'default' => 'success']
         );
 
         $this->addField(
-            "timestamp",
+            'timestamp',
             ['type' => 'datetime', 'default' => new DateTime()]
         );
     }
