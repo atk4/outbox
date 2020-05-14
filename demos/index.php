@@ -29,7 +29,6 @@ $app->add([
 
 $loader = Loader::addTo($app);
 $loader->set(function (Loader $l) {
-
     $route = $l->stickyGet('route');
     $route = empty($route) ? 'mail' : $route;
 
