@@ -11,12 +11,10 @@ use atk4\ui\View;
 
 class MailAdmin extends Grid
 {
-    public function setModel(Model $m, $columns = null)
+    public function init(): void
     {
-        if (!is_a($m, Mail::class, true)) {
-            throw new Exception(['Model must be of type Mail']);
-        }
+        parent::init();
 
-        return parent::setModel($m, $columns);
+        $this->setModel(new Mail($this->app->db));
     }
 }
