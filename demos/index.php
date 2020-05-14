@@ -27,10 +27,10 @@ $app->add([
     ],
 ]);
 
-$loader = Loader::addTo($app);
+$loader = Loader::addTo($app, ['appStickyCb' => 'true']);
 $loader->set(function (Loader $l) {
 
-    $route = $l->stickyGet('route');
+    $route = $l->app->stickyGet('route');
     $route = empty($route) ? 'mail' : $route;
 
     switch ($route) {
