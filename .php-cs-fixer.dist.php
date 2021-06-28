@@ -3,17 +3,16 @@
 $finder = PhpCsFixer\Finder::create()
     ->in([__DIR__])
     ->exclude([
-        'cache',
-        'build',
         'vendor',
     ]);
 
-return PhpCsFixer\Config::create()
-    ->setRiskyAllowed(true)
+$config = new \PhpCsFixer\Config();
+$config->setRiskyAllowed(true)
     ->setRules([
         '@PhpCsFixer' => true,
         '@PhpCsFixer:risky' =>true,
         '@PHP71Migration:risky' => true,
+        '@PHP73Migration' => true,
 
         // required by PSR-12
         'concat_space' => [
@@ -21,6 +20,11 @@ return PhpCsFixer\Config::create()
         ],
 
         // disable some too strict rules
+        'phpdoc_types' => [
+            // keep enabled, but without "alias" group to not fix
+            // "Callback" to "callback" in phpdoc
+            'groups' => ['simple', 'meta']
+        ],
         'phpdoc_types_order' => [
             'null_adjustment' => 'always_last',
             'sort_algorithm' => 'none',
@@ -34,8 +38,10 @@ return PhpCsFixer\Config::create()
         'non_printable_character' => [
             'use_escape_sequences_in_strings' => true,
         ],
-        'declare_strict_types' => false,
         'void_return' => false,
+        'blank_line_before_statement' => [
+            'statements' => ['break', 'continue', 'declare', 'return', 'throw', 'exit'],
+        ],
         'combine_consecutive_issets' => false,
         'combine_consecutive_unsets' => false,
         'multiline_whitespace_before_semicolons' => false,
@@ -49,9 +55,15 @@ return PhpCsFixer\Config::create()
         'phpdoc_add_missing_param_annotation' => false,
         'return_assignment' => false,
         'comment_to_phpdoc' => false,
+        'list_syntax' => ['syntax' => 'short'],
+        'general_phpdoc_annotation_remove' => [
+            'annotations' => ['author', 'copyright', 'throws'],
+        ],
         'nullable_type_declaration_for_default_null_value' => [
             'use_nullable_type_declaration' => false,
         ],
     ])
     ->setFinder($finder)
     ->setCacheFile(__DIR__ . '/.php_cs.cache');
+
+return $config;
