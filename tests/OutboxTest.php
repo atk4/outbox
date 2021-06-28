@@ -60,7 +60,7 @@ class OutboxTest extends TestCase
     {
         $app = $this->getApp();
 
-        if (!method_exists($app, 'getOutbox')) {
+        if (!is_callable([$app, 'getOutbox'])) {
             throw new Exception('App without getOutbox method');
         }
 
