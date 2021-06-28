@@ -1,16 +1,20 @@
 <?php
 
-namespace atk4\outbox\Test;
+declare(strict_types=1);
 
-use atk4\data\Model;
-use atk4\data\Persistence\Static_;
-use atk4\outbox\Model\MailAddress;
+namespace Atk4\Outbox\Test;
+
+use Atk4\Data\Model;
+use Atk4\Data\Persistence\Array_;
+use Atk4\Outbox\Model\MailAddress;
 
 class User extends Model
 {
     public $table = 'user';
 
-    public function init(): void
+    public $title_field = 'email';
+
+    protected function init(): void
     {
         parent::init();
 
@@ -19,15 +23,14 @@ class User extends Model
 
         $this->addField('email');
 
-        $this->addExpression('name', 'CONCAT([first_name], " ", [last_name])');
+        //$this->addExpression('name', '([first_name] || [last_name])');
     }
 
     public function getMailAddress(): MailAddress
     {
-        $p = new Static_([]);
-        $address = new MailAddress($p);
+        $address = new MailAddress(new Array_());
         $address->set('email', $this->get('email'));
-        $address->set('name', $this->get('name'));
+        $address->set('name', $this->get('first_name') . ' ' . $this->get('last_name'));
 
         return $address;
     }

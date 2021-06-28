@@ -1,25 +1,27 @@
 <?php
 
-namespace atk4\outbox\Test;
+declare(strict_types=1);
 
-use atk4\outbox\MailerInterface;
-use atk4\outbox\Model\Mail;
-use atk4\outbox\Model\MailResponse;
+namespace Atk4\Outbox\Test;
+
+use Atk4\Outbox\MailerInterface;
+use Atk4\Outbox\Model\Mail;
+use Atk4\Outbox\Model\MailResponse;
 
 class FakeMailer implements MailerInterface
 {
-    public function send(Mail $mail): MailResponse
+    public function send(Mail $message): MailResponse
     {
-        $mail->set('status', Mail::STATUS_SENDING);
-        $mail->save();
+        $message->set('status', Mail::STATUS_SENDING);
+        $message->save();
 
-        $response = new MailResponse($mail->persistence);
+        $response = new MailResponse($message->persistence);
 
-        $mail->set('status', Mail::STATUS_SENT);
-        $mail->save();
+        $message->set('status', Mail::STATUS_SENT);
+        $message->save();
 
         return $response->save([
-            'email_id' => $mail->id,
+            'email_id' => $message->id,
         ]);
     }
 }

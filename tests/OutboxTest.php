@@ -1,24 +1,24 @@
 <?php
 
-namespace atk4\outbox\Test;
+declare(strict_types=1);
 
-use atk4\core\AtkPhpunit\TestCase;
-use atk4\outbox\Model\Mail;
-use atk4\outbox\Outbox;
-use atk4\ui\App;
-use atk4\ui\Layout\Generic;
+namespace Atk4\Outbox\Test;
+
+use Atk4\Core\AtkPhpunit\TestCase;
+use Atk4\Core\Exception;
+use Atk4\Outbox\Model\Mail;
+use Atk4\Outbox\Outbox;
+use Atk4\Ui\App;
+use Atk4\Ui\Layout;
 
 /**
  * Class OutboxTest.
  */
 class OutboxTest extends TestCase
 {
-    public function testSend()
+    public function testSend(): void
     {
-        $app = $this->getApp();
-
-        /** @var Outbox $outbox */
-        $outbox = $this->getApp()->getOutbox();
+        $outbox = $this->getOutboxFromApp();
 
         $mail = $outbox->new()
             ->withTemplateIdentifier('template_test')
@@ -42,30 +42,34 @@ class OutboxTest extends TestCase
     {
         $app = new App();
         $app->db = Bootstrap::instance()->el('persistence');
-        $app->initLayout(Generic::class);
+        $app->initLayout([Layout::class]);
         $app->add([
             Outbox::class,
             [
                 'mailer' => [
                     FakeMailer::class,
                 ],
-                'model' => [
-                    Mail::class,
-                ],
+                'model' => Mail::class,
             ],
         ]);
 
         return $app;
     }
 
-    public function testSendCallable()
+    private function getOutboxFromApp(): Outbox
     {
         $app = $this->getApp();
 
-        /** @var Outbox $outbox */
-        $outbox = $this->getApp()->getOutbox();
+        if (!method_exists($app, 'getOutbox')) {
+            throw new Exception('App without getOutbox method');
+        }
 
-        $response = $outbox->callableSend(function (Mail $mail) use (&$mail2test) {
+        return $app->getOutbox();
+    }
+
+    public function testSendCallable(): void
+    {
+        $this->getOutboxFromApp()->callableSend(function (Mail $mail) {
             $mail->withTemplateIdentifier('template_test')
                 ->replaceContent('token', 'Agile Toolkit');
 
@@ -85,7 +89,7 @@ class OutboxTest extends TestCase
         });
     }
 
-    public function testMailSaveAsTemplate()
+    public function testMailSaveAsTemplate(): void
     {
         /** @var Mail $mail_model */
         $mail_model = Bootstrap::instance()->_getFromCollection(

@@ -1,15 +1,17 @@
 <?php
 
-namespace atk4\outbox\Test;
+declare(strict_types=1);
 
-use atk4\core\AtkPhpunit\TestCase;
-use atk4\core\Exception;
-use atk4\outbox\Model\Mail;
-use atk4\outbox\Outbox;
+namespace Atk4\Outbox\Test;
+
+use Atk4\Core\AtkPhpunit\TestCase;
+use Atk4\Core\Exception;
+use Atk4\Outbox\Model\Mail;
+use Atk4\Outbox\Outbox;
 
 class OutboxNoAppTest extends TestCase
 {
-    public function test1()
+    public function testWithAddress(): void
     {
         $mail_model = Bootstrap::instance()->el('mail_model');
 
@@ -20,7 +22,7 @@ class OutboxNoAppTest extends TestCase
             'model' => $mail_model,
         ]);
 
-        $outbox->init();
+        $outbox->invokeInit();
 
         $mail = $outbox->new()
             ->withTemplateIdentifier('template_test')
@@ -40,14 +42,14 @@ class OutboxNoAppTest extends TestCase
         $this->assertSame($response->get('email_id'), $mail->id);
     }
 
-    public function test2()
+    public function testWithAddressAdvanced(): void
     {
         /** @var Mail $mail_model */
         $mail_model = Bootstrap::instance()->el('mail_model');
 
         /** @var User $user_model */
         $user_model = Bootstrap::instance()->el('user_model');
-        $user_model->loadAny();
+        $user_model = $user_model->loadAny();
 
         $outbox = new Outbox([
             'mailer' => [
@@ -56,38 +58,49 @@ class OutboxNoAppTest extends TestCase
             'model' => $mail_model,
         ]);
 
-        $outbox->init();
+        $outbox->invokeInit();
 
         $mail = $outbox->new()
             ->withTemplateIdentifier('template_test_user')
             ->replaceContent('token', 'Agile Toolkit')
             ->replaceContent($user_model, 'user');
 
-        $mail->ref('to')->save([
+        $mail->ref('to')->insert([
             'email' => 'test@email.it',
             'name' => 'test email',
         ]);
-        $mail->ref('to')->save($user_model->getMailAddress()->get());
+        $mail->ref('to')->insert([
+            'email' => $user_model->getMailAddress()->get('email'),
+            'name' => $user_model->getMailAddress()->get('name'),
+        ]);
 
-        $mail->ref('cc')->save([
+        $mail->ref('cc')->insert([
             'email' => 'test@email.it',
             'name' => 'test email',
         ]);
-        $mail->ref('cc')->save($user_model->getMailAddress()->get());
-
-        $mail->ref('bcc')->save([
+        $mail->ref('cc')->insert([
+            'email' => $user_model->getMailAddress()->get('email'),
+            'name' => $user_model->getMailAddress()->get('name'),
+        ]);
+        $mail->ref('bcc')->insert([
             'email' => 'test@email.it',
             'name' => 'test email',
         ]);
-        $mail->ref('bcc')->save($user_model->getMailAddress()->get());
+        $mail->ref('bcc')->insert([
+            'email' => $user_model->getMailAddress()->get('email'),
+            'name' => $user_model->getMailAddress()->get('name'),
+        ]);
 
-        $mail->ref('replyto')->save([
+        $mail->ref('replyto')->insert([
             'email' => 'test@email.it',
             'name' => 'test email',
         ]);
-        $mail->ref('replyto')->save($user_model->getMailAddress()->get());
+        $mail->ref('replyto')->insert([
+            'email' => $user_model->getMailAddress()->get('email'),
+            'name' => $user_model->getMailAddress()->get('name'),
+        ]);
 
-        $mail->ref('headers')->save([
+        $mail->ref('headers')->insert([
             'name' => 'x-custom-header',
             'value' => 'Agile Toolkit',
         ]);
@@ -101,7 +114,7 @@ class OutboxNoAppTest extends TestCase
         $this->assertSame($response->get('email_id'), $mail->id);
     }
 
-    public function testExceptionNoInit()
+    public function testExceptionNoInit(): void
     {
         $this->expectException(Exception::class);
 

@@ -1,14 +1,15 @@
 <?php
 
-namespace atk4\outbox\Test;
+declare(strict_types=1);
 
-use atk4\core\CollectionTrait;
-use atk4\data\Exception;
-use atk4\data\Persistence;
-use atk4\outbox\Model\Mail;
-use atk4\outbox\Model\MailResponse;
-use atk4\outbox\Model\MailTemplate;
-use atk4\schema\Migration;
+namespace Atk4\Outbox\Test;
+
+use Atk4\Core\CollectionTrait;
+use Atk4\Data\Persistence;
+use Atk4\Outbox\Model\Mail;
+use Atk4\Outbox\Model\MailResponse;
+use Atk4\Outbox\Model\MailTemplate;
+use Atk4\Schema\Migration;
 
 class Bootstrap
 {
@@ -17,9 +18,10 @@ class Bootstrap
     /** @var self */
     private static $instance;
 
+    /** @var array */
     public $elements = [];
 
-    public function setup()
+    public function setup(): void
     {
         if (!empty(self::instance()->elements)) {
             return;
@@ -33,10 +35,10 @@ class Bootstrap
         $mail_response = new MailResponse($persistence);
         $user = new User($persistence);
 
-        Migration::of($mail)->run();
-        Migration::of($mail_template)->run();
-        Migration::of($mail_response)->run();
-        Migration::of($user)->run();
+        (new Migration($mail))->dropIfExists()->create();
+        (new Migration($mail_template))->dropIfExists()->create();
+        (new Migration($mail_response))->dropIfExists()->create();
+        (new Migration($user))->dropIfExists()->create();
 
         $self->el('persistence', $persistence);
         $self->el('mail_model', $mail);
@@ -63,12 +65,12 @@ class Bootstrap
             return self::$instance;
         }
 
-        self::$instance = new static();
+        self::$instance = new self();
 
         return self::$instance;
     }
 
-    public function el($name, $obj = null)
+    public function el(string $name, object $obj = null): object
     {
         if ($obj === null) {
             return $this->_getFromCollection($name, 'elements');
@@ -77,13 +79,10 @@ class Bootstrap
         return $this->_addIntoCollection($name, $obj, 'elements');
     }
 
-    /**
-     * @throws Exception
-     * @throws \atk4\core\Exception
-     */
     private function prepareMailTemplate(MailTemplate $mail_template): void
     {
-        $mail_template->tryLoadBy('identifier', 'template_test');
+        $mail_template = $mail_template->newInstance()->tryLoadBy('identifier', 'template_test');
+
         if ($mail_template->loaded()) {
             return;
         }
@@ -104,13 +103,10 @@ class Bootstrap
         $mail_template->save();
     }
 
-    /**
-     * @throws Exception
-     * @throws \atk4\core\Exception
-     */
     private function prepareMailTemplateUser(MailTemplate $mail_template): void
     {
-        $mail_template->tryLoadBy('identifier', 'template_test_user');
+        $mail_template = $mail_template->newInstance()->tryLoadBy('identifier', 'template_test_user');
+
         if ($mail_template->loaded()) {
             return;
         }
