@@ -2,13 +2,12 @@
 
 declare(strict_types=1);
 
-namespace atk4\outbox\Mailer;
+namespace Atk4\Outbox\Mailer;
 
-use atk4\core\DIContainerTrait;
-use atk4\outbox\MailerInterface;
-use atk4\outbox\Model\Mail;
-use atk4\outbox\Model\MailResponse;
-use PHPMailer\PHPMailer\Exception;
+use Atk4\Core\DiContainerTrait;
+use Atk4\Outbox\MailerInterface;
+use Atk4\Outbox\Model\Mail;
+use Atk4\Outbox\Model\MailResponse;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP as PHPMailerSMTP;
 
@@ -27,12 +26,14 @@ class AbstractMailer implements MailerInterface
     protected $host = 'localhost';
     /** @var int */
     protected $port = 587;
-    /** @var int */
-    protected $secure = self::SMTP_SECURE_NULL;
+    /** @var string */
+    protected $secure = '';
     /** @var string */
     protected $username;
     /** @var string */
     protected $password;
+    /** @var string */
+    protected $charset = PHPMailer::CHARSET_UTF8;
 
     public function __construct(array $defaults = [])
     {
@@ -48,6 +49,8 @@ class AbstractMailer implements MailerInterface
         $this->phpmailer->SMTPAuth = $this->auth;
         $this->phpmailer->Username = $this->username;
         $this->phpmailer->Password = $this->password;
+
+        $this->phpmailer->CharSet = $this->charset;
     }
 
     public function send(Mail $mail): MailResponse
@@ -60,6 +63,16 @@ class AbstractMailer implements MailerInterface
                 $mail->ref('from')->get('name')
             );
 
+            $this->addAddress(
+                $mail,
+                'to',
+                function ($address): void {
+                    $this->phpmailer->addAddress(
+                        $address->get('email'),
+                        $address->get('name')
+                    );
+                }
+            );
             $this->addAddress(
                 $mail,
                 'replyto',
@@ -94,7 +107,7 @@ class AbstractMailer implements MailerInterface
             );
 
             $this->phpmailer->Subject = $mail->get('subject');
-            $this->phpmailer->msgHTML = $mail->get('html');
+            $this->phpmailer->Body = $mail->get('html');
             $this->phpmailer->AltBody = $mail->get('text');
 
             foreach ($mail->ref('headers')->getIterator() as $model) {
@@ -122,7 +135,7 @@ class AbstractMailer implements MailerInterface
 
             // save successful MailResponse
             $mail_response->save(['email_id' => $mail->id]);
-        } catch (Exception $exception) {
+        } catch (\Throwable $exception) {
             $mail->set('status', Mail::STATUS_ERROR);
             $mail->save();
 

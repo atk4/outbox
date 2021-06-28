@@ -2,19 +2,17 @@
 
 declare(strict_types=1);
 
-namespace atk4\outbox\Model;
+namespace Atk4\Outbox\Model;
 
-use atk4\data\Model;
+use Atk4\Data\Model;
 
 class MailAddress extends Model
 {
-    public $id_field = 'email';
-
-    public function init(): void
+    protected function init(): void
     {
         parent::init();
 
-        $this->getField('email')->type = 'string';
+        $this->addField('email');
         $this->addField('name');
     }
 }

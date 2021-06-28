@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace atk4\outbox\Model;
+namespace Atk4\Outbox\Model;
 
-use atk4\data\Exception;
-use atk4\data\Model;
-use atk4\outbox\Outbox;
+use Atk4\Data\Exception;
+use Atk4\Data\Model;
+use Atk4\Outbox\Outbox;
 
 /**
  * Class Mail.
@@ -32,29 +32,25 @@ class Mail extends Model
     /** @var string */
     public $mail_template_default = MailTemplate::class;
 
-    /**
-     * @throws \atk4\core\Exception
-     * @throws Exception
-     */
-    public function init(): void
+    protected function init(): void
     {
         parent::init();
 
-        $this->containsOne('from', MailAddress::class);
-        $this->containsMany('replyto', MailAddress::class);
+        $this->containsOne('from', ['model' => [MailAddress::class]]);
+        $this->containsMany('replyto', ['model' => [MailAddress::class]]);
 
-        $this->containsMany('headers', MailHeader::class);
+        $this->containsMany('headers', ['model' => [MailHeader::class]]);
 
-        $this->containsMany('to', MailAddress::class);
-        $this->containsMany('cc', MailAddress::class);
-        $this->containsMany('bcc', MailAddress::class);
+        $this->containsMany('to', ['model' => [MailAddress::class]]);
+        $this->containsMany('cc', ['model' => [MailAddress::class]]);
+        $this->containsMany('bcc', ['model' => [MailAddress::class]]);
 
         $this->addField('subject');
 
         $this->addField('text', ['type' => 'text']);
         $this->addField('html', ['type' => 'text']);
 
-        $this->containsMany('attachments', MailAttachment::class);
+        $this->containsMany('attachments', ['model' => [MailAttachment::class]]);
 
         $this->addField('status', [
             'values' => array_combine(
@@ -65,14 +61,11 @@ class Mail extends Model
         ]);
 
         $this->hasMany('response', [
-            MailResponse::class,
+            'model' => [MailResponse::class],
             'their_field' => 'email_id',
         ]);
     }
 
-    /**
-     * @throws Exception|\atk4\core\Exception
-     */
     public function withTemplateIdentifier(string $identifier): self
     {
         /** @var MailTemplate $template */
@@ -90,8 +83,6 @@ class Mail extends Model
 
     /**
      * Set data from MailTemplate.
-     *
-     * @throws Exception
      */
     public function withTemplate(MailTemplate $template): self
     {
@@ -108,8 +99,6 @@ class Mail extends Model
 
     /**
      * Check if can be processed.
-     *
-     * @throws Exception
      */
     private function allowProcessing(): void
     {
@@ -120,8 +109,6 @@ class Mail extends Model
 
     /**
      * @param string|array<string,string>|Model $tokens
-     *
-     * @throws Exception
      */
     public function replaceContent($tokens, string $prefix = null): self
     {
@@ -135,8 +122,11 @@ class Mail extends Model
         }
 
         foreach ($tokens as $key => $value) {
+            if ($value === null) {
+                continue;
+            }
             $key = '{{' . ($prefix === null ? $key : $prefix . '.' . $key) . '}}';
-            $this->replaceContentToken($key, $value);
+            $this->replaceContentToken($key, (string) $value);
         }
 
         return $this;
@@ -144,8 +134,6 @@ class Mail extends Model
 
     /**
      * Replace in subject, html and text using key with value.
-     *
-     * @throws Exception
      */
     private function replaceContentToken(string $key, string $value): self
     {
@@ -160,30 +148,9 @@ class Mail extends Model
 
     /**
      * Send Mail using $outbox or get from app.
-     *
-     * @throws \atk4\core\Exception
      */
-    public function send(Outbox $outbox = null): MailResponse
+    public function send(Outbox $outbox): MailResponse
     {
-        // if outbox is null check if App is present and has outbox added
-        if ($outbox === null && $this->app !== null && method_exists(
-            $this->app,
-            'getOutbox'
-        )) {
-            $outbox = $this->app->getOutbox();
-        }
-
-        // if still null throw exception
-        if ($outbox === null) {
-            throw new Exception([
-                '$outbox is null and App has no Outbox',
-                'solutions' => [
-                    'Add Outbox object to App',
-                    'Call method send with Outbox != null',
-                ],
-            ]);
-        }
-
         return $outbox->send($this);
     }
 
@@ -194,9 +161,7 @@ class Mail extends Model
         $mail_template->tryLoadAny();
 
         if ($mail_template->loaded()) {
-            throw new \atk4\ui\Exception([
-                'Template Identifier already exists',
-            ]);
+            throw new \Atk4\Ui\Exception('Template Identifier already exists');
         }
 
         foreach ($this->get() as $fieldname => $value) {

@@ -1,20 +1,21 @@
 <?php
 
-use atk4\outbox\MailAdmin;
-use atk4\outbox\MailTemplateAdmin;
-use atk4\outbox\Model\Mail;
-use atk4\outbox\Outbox;
-use atk4\outbox\Test\FakeMailer;
-use atk4\ui\App;
-use atk4\ui\Layout\Admin;
-use atk4\ui\Loader;
+declare(strict_types=1);
+
+use Atk4\Outbox\MailAdmin;
+use Atk4\Outbox\MailTemplateAdmin;
+use Atk4\Outbox\Model\Mail;
+use Atk4\Outbox\Outbox;
+use Atk4\Outbox\Test\FakeMailer;
+use Atk4\Ui\App;
+use Atk4\Ui\Layout\Admin;
+use Atk4\Ui\Loader;
 
 include dirname(__DIR__) . '/vendor/autoload.php';
-include __DIR__ . '/db.php';
 
 $app = new App(['title' => 'Agile Toolkit - Outbox']);
-$app->db = $db;
-$app->initLayout(Admin::class);
+$app->db = include __DIR__ . '/db.php';
+$app->initLayout([Admin::class]);
 $app->add([
     Outbox::class,
     [
@@ -27,9 +28,9 @@ $app->add([
     ],
 ]);
 
-$loader = Loader::addTo($app, ['appStickyCb' => 'true']);
+$loader = Loader::addTo($app);
 $loader->set(function (Loader $l) {
-    $route = $l->app->stickyGet('route');
+    $route = $l->getApp()->stickyGet('route');
     $route = empty($route) ? 'mail' : $route;
 
     switch ($route) {

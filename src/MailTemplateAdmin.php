@@ -1,16 +1,37 @@
 <?php
 
-namespace atk4\outbox;
+declare(strict_types=1);
 
-use atk4\outbox\Model\MailTemplate;
-use atk4\ui\CRUD;
+namespace Atk4\Outbox;
 
-class MailTemplateAdmin extends CRUD
+use Atk4\Outbox\Model\MailTemplate;
+use Atk4\Ui\Crud;
+
+class MailTemplateAdmin extends Crud
 {
-    public function init(): void
+    public $displayFields = [
+        'identifier',
+        'subject',
+    ];
+
+    public $addFields = [
+        'identifier',
+        'subject',
+        'text',
+        'html',
+    ];
+
+    public $editFields = [
+        'identifier',
+        'subject',
+        'text',
+        'html',
+    ];
+
+    protected function init(): void
     {
         parent::init();
 
-        $this->setModel(new MailTemplate($this->app->db));
+        $this->setModel(new MailTemplate($this->getApp()->db));
     }
 }
