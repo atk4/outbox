@@ -42,7 +42,7 @@
   "prefer-stable": true,
   "require-release": {
     "php": ">=7.4.0",
-    "atk4/ui": "2.4.0",
-    "phpmailer/phpmailer": "v6.4.1"
+    "atk4/ui": "^2.4.0",
+    "phpmailer/phpmailer": "^v6.4.1"
   }
 }
