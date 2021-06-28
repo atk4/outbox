@@ -1,7 +1,6 @@
 {
   "name": "atk4/outbox",
   "description": "Agile toolkit Email",
-  "minimum-stability": "dev",
   "license": "MIT",
   "authors": [
     {
@@ -15,31 +14,35 @@
     }
   ],
   "require": {
-    "php": ">=7.2.0",
-    "atk4/ui": "dev-develop",
-    "phpmailer/phpmailer": "6.0.x-dev",
-    "html2text/html2text": "dev-master"
+    "php": ">=7.4.0",
+    "atk4/ui": "2.4.0",
+    "phpmailer/phpmailer": "v6.4.1",
+    "html2text/html2text": "4.3.1"
   },
   "require-dev": {
-    "atk4/schema": "dev-develop",
-    "atk4/data": "dev-develop",
-    "phpunit/phpunit": "*",
-    "friendsofphp/php-cs-fixer": "^2.16",
-    "phpunit/phpcov": "*"
+    "atk4/data": "2.4.0",
+    "ergebnis/composer-normalize": "^2.13",
+    "friendsofphp/php-cs-fixer": "^3.0",
+    "johnkary/phpunit-speedtrap": "^3.2",
+    "phpstan/phpstan": "^0.12.82",
+    "phpunit/phpcov": "*",
+    "phpunit/phpunit": ">=9.3"
   },
   "require-release": {
-    "php": ">=7.2.0",
-    "atk4/ui": "^2.0",
-    "phpmailer/phpmailer": "6.0.x-dev"
+    "php": ">=7.4.0",
+    "atk4/ui": "2.4.0",
+    "phpmailer/phpmailer": "v6.4.1"
   },
   "autoload": {
     "psr-4": {
-      "atk4\\outbox\\" : "src/"
+      "Atk4\\Outbox\\" : "src/"
     }
   },
   "autoload-dev": {
     "psr-4": {
-      "atk4\\outbox\\Test\\" : "tests/"
+      "Atk4\\Outbox\\Test\\" : "tests/"
     }
-  }
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
 }
