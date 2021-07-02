@@ -2,24 +2,30 @@
 
 declare(strict_types=1);
 
-namespace atk4\outbox\Model;
+namespace Atk4\Outbox\Model;
 
-use atk4\data\Model;
+use Atk4\Data\Model;
 use DateTime;
 
 class MailResponse extends Model
 {
     public $table = 'mail_response';
 
-    public function init(): void
+    protected function init(): void
     {
         parent::init();
 
-        $this->hasOne("email_id", Mail::class);
+        $this->hasOne('email_id', ['model' => [Mail::class]]);
 
-        $this->addField("code", ['type' => 'int', 'default' => 0]);
-        $this->addField("message", ['type' => 'string']);
+        $this->addField('code', ['type' => 'integer', 'default' => 0]);
+        $this->addField(
+            'message',
+            ['type' => 'string', 'default' => 'success']
+        );
 
-        $this->addField("timestamp", ['type' => 'datetime', 'default' => new DateTime()]);
+        $this->addField(
+            'timestamp',
+            ['type' => 'datetime', 'default' => new DateTime()]
+        );
     }
 }

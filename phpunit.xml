@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" colors="true" bootstrap="vendor/autoload.php" printerClass="Atk4\Core\AtkPhpunit\ResultPrinter" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd">
+  <coverage processUncoveredFiles="true">
+    <include>
+      <directory suffix=".php">./src</directory>
+    </include>
+    <report>
+      <clover outputFile="build/logs/clover.xml"/>
+    </report>
+  </coverage>
+  <php>
+    <env name="MYSQL_DSN" value="sqlite::memory:"/>
+  </php>
+  <testsuites>
+    <testsuite name="tests">
+      <file>tests/Bootstrap.php</file>
+      <directory>tests</directory>
+    </testsuite>
+  </testsuites>
+  <logging/>
+</phpunit>

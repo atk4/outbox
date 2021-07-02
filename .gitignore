@@ -1,0 +1,7 @@
+docs/build
+/composer.lock
+/build
+/vendor
+.DS_Store
+.idea
+/demos/db.sqlite

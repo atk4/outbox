@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace atk4\outbox\Mailer;
+namespace Atk4\Outbox\Mailer;
 
 class SMTP extends AbstractMailer
 {

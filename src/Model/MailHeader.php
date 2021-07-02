@@ -6,13 +6,13 @@ namespace Atk4\Outbox\Model;
 
 use Atk4\Data\Model;
 
-class MailAddress extends Model
+class MailHeader extends Model
 {
     protected function init(): void
     {
         parent::init();
 
-        $this->addField('email');
         $this->addField('name');
+        $this->addField('value');
     }
 }

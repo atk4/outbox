@@ -2,17 +2,16 @@
 
 declare(strict_types=1);
 
-namespace atk4\outbox\Model;
+namespace Atk4\Outbox\Model;
 
-use atk4\data\Model;
+use Atk4\Data\Model;
 
 class MailTemplateToken extends Model
 {
-    public function init(): void
+    protected function init(): void
     {
         parent::init();
-
-        $this->addField('identifier');
+        $this->addField('token');
         $this->addField('description');
     }
 }

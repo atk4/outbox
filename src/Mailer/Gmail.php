@@ -2,22 +2,14 @@
 
 declare(strict_types=1);
 
-namespace atk4\outbox\Mailer;
+namespace Atk4\Outbox\Mailer;
 
-use atk4\core\Exception;
+use PHPMailer\PHPMailer\PHPMailer;
 
 class Gmail extends SMTP
 {
     protected $host = 'smtp.gmail.com';
     protected $port = 587;
     protected $auth = true;
-
-    public function __construct(array $defaults = [])
-    {
-        if (empty($defaults['password']) || empty($defaults['username'])) {
-            throw new Exception('username and password must be defined in injection array');
-        }
-
-        parent::__construct($defaults);
-    }
+    protected $secure = PHPMailer::ENCRYPTION_SMTPS;
 }

@@ -2,11 +2,12 @@
 
 declare(strict_types=1);
 
-namespace atk4\outbox;
+namespace Atk4\Outbox;
 
-use atk4\outbox\Model\Mail;
+use Atk4\Outbox\Model\Mail;
+use Atk4\Outbox\Model\MailResponse;
 
 interface MailerInterface
 {
-    public function send(Mail $Message): void;
+    public function send(Mail $Message): MailResponse;
 }

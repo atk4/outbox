@@ -2,25 +2,17 @@
 
 declare(strict_types=1);
 
-namespace atk4\outbox;
+namespace Atk4\Outbox;
 
-use atk4\core\AppScopeTrait;
-use atk4\core\DIContainerTrait;
-use atk4\core\Exception;
-use atk4\core\FactoryTrait;
-use atk4\core\InitializerTrait;
-use atk4\data\Persistence;
-use atk4\outbox\Model\Mail;
+use Atk4\Core\Exception;
+use Atk4\Core\Factory;
+use Atk4\Data\Persistence;
+use Atk4\Outbox\Model\Mail;
+use Atk4\Outbox\Model\MailResponse;
+use Atk4\Ui\AbstractView;
 
-class Outbox
+class Outbox extends AbstractView
 {
-    use AppScopeTrait;
-    use InitializerTrait {
-        init as _init;
-    }
-    use DIContainerTrait;
-    use FactoryTrait;
-
     /**
      * Mailer.
      *
@@ -31,60 +23,61 @@ class Outbox
     /**
      * Default Mail model.
      *
-     * @var Mail
+     * @var Mail|array|string
      */
     protected $model = Mail::class;
 
-    public function __construct($defaults = [])
+    /** @var string */
+    protected $skin;
+
+    public function __construct(array $defaults = [])
     {
-        if (empty($defaults['mailer'])) {
-            throw new Exception('No Mailer');
+        if (is_array($defaults['mailer'])) {
+            $defaults['mailer'] = Factory::factory($defaults['mailer']);
         }
 
-        if (is_array($defaults['mailer'])) {
-            $class = array_pop($defaults['mailer']);
-            $defaults['mailer'] = new $class($defaults['mailer']);
+        if (!is_a($defaults['mailer'], MailerInterface::class, true)) {
+            throw new Exception('Mailer is not a MailerInterface');
         }
 
         $this->setDefaults($defaults);
+
+        if ($this->mailer === null) {
+            throw new Exception('No Mailer');
+        }
     }
 
-    /**
-     * @throws Exception
-     */
-    public function init(): void
+    protected function init(): void
     {
-        $this->_init();
+        parent::init();
 
         // Setup app, if present
-        if (null !== $this->app) {
-            $this->app->addMethod(
-                'getOutbox',
-                function (): self {
-                    return $this;
-                }
-            );
-
-            if (is_array($this->model)) {
-                if (!is_a($this->model[1] ?? null, Persistence::class)) {
-                    $this->model[1] = $this->app->db;
-                }
+        $this->getApp()->addMethod(
+            'getOutbox',
+            function (): self {
+                return $this;
             }
+        );
 
-            if (is_string($this->model)) {
-                $this->model = [
-                    $this->model,
-                    $this->app->db,
-                ];
+        if (is_array($this->model)) {
+            if (!is_a($this->model[1] ?? null, Persistence::class)) {
+                $this->model[1] = $this->getApp()->db;
             }
         }
 
-        $this->mailer = $this->factory($this->mailer);
-        $this->model = $this->factory($this->model);
+        if (is_string($this->model)) {
+            $this->model = [
+                $this->model,
+                $this->getApp()->db,
+            ];
+        }
+
+        $this->mailer = Factory::factory($this->mailer);
+        $this->model = Factory::factory($this->model);
 
         if (!is_a($this->mailer, MailerInterface::class)) {
-            $exc = new Exception('Mailer must be a subclass of MailerInterface');
-            throw $exc->addSolution('You need to specify a Mailer which implements MailerInterface');
+            throw (new Exception('Mailer must be a subclass of MailerInterface'))
+                ->addSolution('You need to specify a Mailer which implements MailerInterface');
         }
 
         if (!is_a($this->model, Mail::class)) {
@@ -96,42 +89,37 @@ class Outbox
         }
     }
 
-    public function callableSend(callable $send): void
+    public function callableSend(callable $send): MailResponse
     {
         $mail = $send($this->new());
-        $this->send($mail);
+
+        return $this->send($mail);
     }
 
     public function new(): Mail
     {
+        $this->validateOutbox();
+
         return clone $this->model;
     }
 
-    /**
-     * @param Mail $mail
-     *
-     * @return Mail
-     * @throws Exception
-     *
-     */
-    public function send(Mail $mail): Mail
+    protected function validateOutbox(): void
+    {
+        if (!$this->_initialized) {
+            throw (new Exception('Outbox must be initialized first'))
+                ->addSolution('if you use outbox with App, outbox must be add to app using method App::add')
+                ->addSolution('if you use outbox without App, you need to call init() before use');
+        }
+    }
+
+    public function send(Mail $mail): MailResponse
     {
         $this->validateOutbox();
 
         $mail->hook('beforeSend');
-        $this->mailer->send($mail);
-        $mail->hook('afterSend');
-    }
+        $response = $this->mailer->send($mail);
+        $mail->hook('afterSend', [$response]);
 
-    /**
-     * @throws Exception
-     */
-    protected function validateOutbox(): void
-    {
-        if (!$this->_initialized) {
-            $exc = new Exception('Outbox must be initialized first');
-            $exc->addSolution('if you use outbox with App, outbox must be add to app using method App::add');
-            throw $exc->addSolution('if you use outbox without App, you need to call init() before use');
-        }
+        return $response;
     }
 }
