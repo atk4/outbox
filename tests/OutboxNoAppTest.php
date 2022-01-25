@@ -2,21 +2,18 @@
 
 declare(strict_types=1);
 
-namespace Atk4\Outbox\Test;
+namespace Atk4\Outbox\Tests;
 
-use Atk4\Core\Phpunit\TestCase;
 use Atk4\Outbox\Model\Mail;
 use Atk4\Outbox\Outbox;
 
-class OutboxNoAppTest extends TestCase
+class OutboxNoAppTest extends GenericTestCase
 {
     public function testWithAddress(): void
     {
-        $mail_model = Bootstrap::instance()->el('mail_model');
-
         $outbox = new Outbox([
             'mailer' => new FakeMailer(),
-            'model' => $mail_model,
+            'model' => new Mail($this->db),
         ]);
         $outbox->invokeInit();
 
@@ -40,16 +37,12 @@ class OutboxNoAppTest extends TestCase
 
     public function testWithAddressAdvanced(): void
     {
-        /** @var Mail $mail_model */
-        $mail_model = Bootstrap::instance()->el('mail_model');
-
-        /** @var User $user_model */
-        $user_model = Bootstrap::instance()->el('user_model');
+        $user_model = new User($this->db);
         $user_model = $user_model->loadAny();
 
         $outbox = new Outbox([
             'mailer' => new FakeMailer(),
-            'model' => $mail_model,
+            'model' => new Mail($this->db),
         ]);
         $outbox->invokeInit();
 
@@ -105,10 +98,5 @@ class OutboxNoAppTest extends TestCase
             $mail->get('html')
         );
         $this->assertSame($response->get('email_id'), $mail->id);
-    }
-
-    protected function setUp(): void
-    {
-        Bootstrap::instance()->setup();
     }
 }

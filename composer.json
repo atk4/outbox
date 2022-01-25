@@ -26,13 +26,23 @@
   },
   "require-dev": {
     "atk4/ui": "dev-develop",
+    "behat/behat": "^3.9",
+    "behat/mink": "^1.9",
+    "behat/mink-extension": "^2.3.1",
+    "behat/mink-selenium2-driver": "^1.5",
     "ergebnis/composer-normalize": "^2.13",
     "friendsofphp/php-cs-fixer": "^3.0",
-    "johnkary/phpunit-speedtrap": "^3.2",
-    "phpstan/phpstan": "1.4.2",
-    "phpunit/phpcov": "8.2.0",
-    "phpunit/phpunit": ">=9.3"
+    "instaclick/php-webdriver": "^1.4.7",
+    "johnkary/phpunit-speedtrap": "^3.3",
+    "phpstan/extension-installer": "^1.1",
+    "phpstan/phpstan": "^1.0",
+    "phpstan/phpstan-deprecation-rules": "^1.0",
+    "phpunit/phpunit": "^9.5.5",
+    "symfony/console": "^4.4.30 || ^5.3.7",
+    "symfony/css-selector": "^4.4.24 || ^5.2.9"
   },
+  "minimum-stability": "dev",
+  "prefer-stable": true,
   "autoload": {
     "psr-4": {
       "Atk4\\Outbox\\": "src/"
@@ -40,9 +50,10 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "Atk4\\Outbox\\Test\\": "tests/"
+      "Atk4\\Outbox\\Tests\\": "tests/"
     }
   },
-  "minimum-stability": "dev",
-  "prefer-stable": true
+  "config": {
+    "sort-packages": true
+  }
 }

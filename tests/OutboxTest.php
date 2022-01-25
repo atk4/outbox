@@ -2,10 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Atk4\Outbox\Test;
+namespace Atk4\Outbox\Tests;
 
 use Atk4\Core\Exception;
-use Atk4\Core\Phpunit\TestCase;
 use Atk4\Data\Persistence;
 use Atk4\Outbox\Model\Mail;
 use Atk4\Outbox\Outbox;
@@ -15,7 +14,7 @@ use Atk4\Ui\Layout;
 /**
  * Class OutboxTest.
  */
-class OutboxTest extends TestCase
+class OutboxTest extends GenericTestCase
 {
     public function testSend(): void
     {
@@ -42,14 +41,11 @@ class OutboxTest extends TestCase
     private function getApp(): App
     {
         $app = new App();
-        /** @var Persistence $db */
-        $db = Bootstrap::instance()->el('persistence');
-
         $app->initLayout([Layout::class]);
 
         $app->add([Outbox::class, [
             'mailer' => new FakeMailer(),
-            'model' => new Mail($db),
+            'model' => new Mail($this->db),
         ]]);
 
         return $app;
@@ -90,11 +86,7 @@ class OutboxTest extends TestCase
 
     public function testMailSaveAsTemplate(): void
     {
-        /** @var Mail $mail_model */
-        $mail_model = Bootstrap::instance()->_getFromCollection(
-            'mail_model',
-            'elements'
-        );
+        $mail_model = new Mail($this->db);
 
         $entity = $mail_model->createEntity();
         $entity->ref('from')->save([
@@ -126,10 +118,5 @@ class OutboxTest extends TestCase
 
             $this->assertSame($template_model->get($fieldname), $entity->get($fieldname), $fieldname);
         }
-    }
-
-    protected function setUp(): void
-    {
-        Bootstrap::instance()->setup();
     }
 }

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Atk4\Outbox\Test;
+namespace Atk4\Outbox\Tests;
 
 use Atk4\Data\Model;
 use Atk4\Data\Persistence\Array_;
