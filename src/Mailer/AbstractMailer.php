@@ -9,47 +9,19 @@ use Atk4\Outbox\MailerInterface;
 use Atk4\Outbox\Model\Mail;
 use Atk4\Outbox\Model\MailResponse;
 use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\SMTP as PHPMailerSMTP;
 
-class AbstractMailer implements MailerInterface
+abstract class AbstractMailer implements MailerInterface
 {
     use DIContainerTrait;
 
-    /** @var PHPMailer */
-    protected $phpmailer;
+    protected PHPMailer $phpmailer;
 
-    /** @var int */
-    protected $debug = PHPMailerSMTP::DEBUG_OFF;
-    /** @var bool */
-    protected $auth = false;
-    /** @var string */
-    protected $host = 'localhost';
-    /** @var int */
-    protected $port = 587;
-    /** @var string */
-    protected $secure = '';
-    /** @var string */
-    protected $username;
-    /** @var string */
-    protected $password;
-    /** @var string */
-    protected $charset = PHPMailer::CHARSET_UTF8;
+    protected string $charset = PHPMailer::CHARSET_UTF8;
 
     public function __construct(array $defaults = [])
     {
         $this->setDefaults($defaults);
         $this->phpmailer = new PHPMailer(true);
-
-        $this->phpmailer->SMTPDebug = $this->debug;
-
-        $this->phpmailer->Host = $this->host;
-        $this->phpmailer->Port = $this->port;
-        $this->phpmailer->SMTPSecure = $this->secure;
-
-        $this->phpmailer->SMTPAuth = $this->auth;
-        $this->phpmailer->Username = $this->username;
-        $this->phpmailer->Password = $this->password;
-
         $this->phpmailer->CharSet = $this->charset;
     }
 
@@ -152,7 +124,7 @@ class AbstractMailer implements MailerInterface
         return $mail_response;
     }
 
-    protected function addAddress(Mail $mail, string $ref_name, callable $func): void
+    private function addAddress(Mail $mail, string $ref_name, callable $func): void
     {
         foreach ($mail->ref($ref_name)->getIterator() as $id => $address) {
             $func($address);

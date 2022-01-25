@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace Atk4\Outbox\Test;
 
-use Atk4\Core\AtkPhpunit\TestCase;
-use Atk4\Core\Exception;
+use Atk4\Core\Phpunit\TestCase;
 use Atk4\Outbox\Model\Mail;
 use Atk4\Outbox\Outbox;
 
@@ -16,19 +15,16 @@ class OutboxNoAppTest extends TestCase
         $mail_model = Bootstrap::instance()->el('mail_model');
 
         $outbox = new Outbox([
-            'mailer' => [
-                FakeMailer::class,
-            ],
+            'mailer' => new FakeMailer(),
             'model' => $mail_model,
         ]);
-
         $outbox->invokeInit();
 
         $mail = $outbox->new()
             ->withTemplateIdentifier('template_test')
             ->replaceContent('token', 'Agile Toolkit');
 
-        $mail->ref('to')->save([
+        $mail->ref('to')->createEntity()->save([
             'email' => 'destination@email.it',
             'name' => 'destination',
         ]);
@@ -52,12 +48,9 @@ class OutboxNoAppTest extends TestCase
         $user_model = $user_model->loadAny();
 
         $outbox = new Outbox([
-            'mailer' => [
-                FakeMailer::class,
-            ],
+            'mailer' => new FakeMailer(),
             'model' => $mail_model,
         ]);
-
         $outbox->invokeInit();
 
         $mail = $outbox->new()
@@ -112,29 +105,6 @@ class OutboxNoAppTest extends TestCase
             $mail->get('html')
         );
         $this->assertSame($response->get('email_id'), $mail->id);
-    }
-
-    public function testExceptionNoInit(): void
-    {
-        $this->expectException(Exception::class);
-
-        /** @var Mail $mail_model */
-        $mail_model = Bootstrap::instance()->el('mail_model');
-
-        $outbox = new Outbox([
-            'mailer' => [
-                FakeMailer::class,
-            ],
-            'model' => $mail_model,
-        ]);
-
-        //$outbox->init(); <-- this cause exception on send
-
-        $mail = $outbox->new()
-            ->withTemplateIdentifier('template_test_user')
-            ->replaceContent('token', 'Agile Toolkit');
-
-        $response = $outbox->send($mail);
     }
 
     protected function setUp(): void

@@ -28,7 +28,7 @@ class User extends Model
 
     public function getMailAddress(): MailAddress
     {
-        $address = new MailAddress(new Array_());
+        $address = (new MailAddress(new Array_()))->createEntity();
         $address->set('email', $this->get('email'));
         $address->set('name', $this->get('first_name') . ' ' . $this->get('last_name'));
 

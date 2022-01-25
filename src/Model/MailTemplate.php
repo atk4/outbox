@@ -9,6 +9,7 @@ use Atk4\Data\Model;
 class MailTemplate extends Model
 {
     public $table = 'mail_template';
+    public $caption = 'Mail Template';
 
     protected function init(): void
     {

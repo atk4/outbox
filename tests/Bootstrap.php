@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Atk4\Outbox\Test;
 
 use Atk4\Core\CollectionTrait;
-use Atk4\Data\Persistence;
+use Atk4\Data\Persistence\Sql;
+use Atk4\Data\Schema\Migrator;
 use Atk4\Outbox\Model\Mail;
 use Atk4\Outbox\Model\MailResponse;
 use Atk4\Outbox\Model\MailTemplate;
-use Atk4\Schema\Migration;
 
 class Bootstrap
 {
@@ -27,30 +27,28 @@ class Bootstrap
             return;
         }
 
-        $self = self::instance();
-
-        $persistence = Persistence::connect(getenv('MYSQL_DSN'));
+        $persistence = new Sql('sqlite:tests/db.sqlite');
         $mail = new Mail($persistence);
         $mail_template = new MailTemplate($persistence);
         $mail_response = new MailResponse($persistence);
         $user = new User($persistence);
 
-        (new Migration($mail))->dropIfExists()->create();
-        (new Migration($mail_template))->dropIfExists()->create();
-        (new Migration($mail_response))->dropIfExists()->create();
-        (new Migration($user))->dropIfExists()->create();
+        (new Migrator($mail))->dropIfExists()->create();
+        (new Migrator($mail_template))->dropIfExists()->create();
+        (new Migrator($mail_response))->dropIfExists()->create();
+        (new Migrator($user))->dropIfExists()->create();
 
-        $self->el('persistence', $persistence);
-        $self->el('mail_model', $mail);
-        $self->el('mail_template', $mail_template);
-        $self->el('mail_response', $mail_response);
-        $self->el('user_model', $user);
+        $this->el('persistence', $persistence);
+        $this->el('mail_model', $mail);
+        $this->el('mail_template', $mail_template);
+        $this->el('mail_response', $mail_response);
+        $this->el('user_model', $user);
 
         $this->prepareMailTemplate($mail_template);
         $this->prepareMailTemplateUser($mail_template);
 
         $user->addCondition('email', 'user@email.it');
-        $user->tryLoadAny();
+        $user = $user->tryLoadAny();
 
         $user->save([
             'email' => 'user@email.it',
@@ -81,9 +79,9 @@ class Bootstrap
 
     private function prepareMailTemplate(MailTemplate $mail_template): void
     {
-        $mail_template = $mail_template->newInstance()->tryLoadBy('identifier', 'template_test');
+        $mail_template = clone $mail_template->tryLoadBy('identifier', 'template_test');
 
-        if ($mail_template->loaded()) {
+        if ($mail_template->isLoaded()) {
             return;
         }
 
@@ -105,9 +103,9 @@ class Bootstrap
 
     private function prepareMailTemplateUser(MailTemplate $mail_template): void
     {
-        $mail_template = $mail_template->newInstance()->tryLoadBy('identifier', 'template_test_user');
+        $mail_template = clone $mail_template->tryLoadBy('identifier', 'template_test_user');
 
-        if ($mail_template->loaded()) {
+        if ($mail_template->isLoaded()) {
             return;
         }
 

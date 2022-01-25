@@ -2,9 +2,8 @@
 
 declare(strict_types=1);
 
-use Atk4\Outbox\MailAdmin;
-use Atk4\Outbox\MailTemplateAdmin;
 use Atk4\Outbox\Model\Mail;
+use Atk4\Outbox\Model\MailTemplate;
 use Atk4\Outbox\Outbox;
 use Atk4\Outbox\Test\FakeMailer;
 use Atk4\Ui\App;
@@ -16,17 +15,10 @@ include dirname(__DIR__) . '/vendor/autoload.php';
 $app = new App(['title' => 'Agile Toolkit - Outbox']);
 $app->db = include __DIR__ . '/db.php';
 $app->initLayout([Admin::class]);
-$app->add([
-    Outbox::class,
-    [
-        'mailer' => [
-            FakeMailer::class,
-        ],
-        'model' => [
-            Mail::class,
-        ],
-    ],
-]);
+$app->add([Outbox::class, [
+    'mailer' => new FakeMailer(),
+    'model' => new Mail($app->db),
+]]);
 
 $loader = Loader::addTo($app);
 $loader->set(function (Loader $l) {
@@ -35,38 +27,38 @@ $loader->set(function (Loader $l) {
 
     switch ($route) {
         case 'mail':
-
             $grid = \Atk4\Ui\Grid::addTo($l);
 
             $model = new Mail($l->getApp()->db);
             $model->getField('html')->system = true;
             $model->addExpression('time', $model->refLink('response')->action('field', ['timestamp']));
-            $model->setOrder('id','DESC');
+            $model->setOrder('id', 'DESC');
 
             $grid->setModel($model);
 
             break;
         case 'template':
             $crud = \Atk4\Ui\Crud::addTo($l, [
-                "displayFields" => [
+                'displayFields' => [
                     'identifier',
-                    'subject'
+                    'subject',
                 ],
-                "addFields" => [
+                'addFields' => [
                     'identifier',
                     'subject',
                     'text',
-                    'html'
+                    'html',
                 ],
-                "editFields" => [
+                'editFields' => [
                     'identifier',
                     'subject',
                     'text',
-                    'html'
-                ]
+                    'html',
+                ],
             ]);
 
             $crud->setModel(new MailTemplate($l->getApp()->db));
+
             break;
     }
 });
