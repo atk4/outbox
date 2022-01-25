@@ -80,12 +80,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: ['7.4', 'latest']
-        type: ['Phpunit']
+        php: [ '7.4', '8.0', '8.1' ]
+        type: [ 'Phpunit', 'Phpunit Lowest' ]
         include:
-          - php: 'latest'
-            type: 'Phpunit Lowest'
-          - php: 'latest'
+          - php: '8.1' # TODO replace with 'latest' once it represents at least PHP 8.1
             type: 'Phpunit Burn'
     env:
       LOG_COVERAGE: "${{ fromJSON('{true: \"1\", false: \"\"}')[matrix.php == 'latest' && matrix.type == 'Phpunit' && (github.event_name == 'pull_request' || (github.event_name == 'push' && (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/master')))] }}"
