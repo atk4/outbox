@@ -35,12 +35,38 @@ $loader->set(function (Loader $l) {
 
     switch ($route) {
         case 'mail':
-            MailAdmin::addTo($l);
+
+            $grid = \Atk4\Ui\Grid::addTo($l);
+
+            $model = new Mail($l->getApp()->db);
+            $model->getField('html')->system = true;
+            $model->addExpression('time', $model->refLink('response')->action('field', ['timestamp']));
+            $model->setOrder('id','DESC');
+
+            $grid->setModel($model);
 
             break;
         case 'template':
-            MailTemplateAdmin::addTo($l);
+            $crud = \Atk4\Ui\Crud::addTo($l, [
+                "displayFields" => [
+                    'identifier',
+                    'subject'
+                ],
+                "addFields" => [
+                    'identifier',
+                    'subject',
+                    'text',
+                    'html'
+                ],
+                "editFields" => [
+                    'identifier',
+                    'subject',
+                    'text',
+                    'html'
+                ]
+            ]);
 
+            $crud->setModel(new MailTemplate($l->getApp()->db));
             break;
     }
 });
