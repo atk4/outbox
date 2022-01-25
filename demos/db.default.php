@@ -2,22 +2,19 @@
 
 declare(strict_types=1);
 
-$db_file = __DIR__ . '/db.sqlite';
-$db_exists = file_exists($db_file);
+namespace Atk4\Outbox\Demos;
 
-use Atk4\Data\Schema\Migrator;
-use Atk4\Outbox\Model\Mail;
-use Atk4\Outbox\Model\MailResponse;
-use Atk4\Outbox\Model\MailTemplate;
-use Atk4\Outbox\Test\User;
+use Atk4\Data\Persistence;
 
-$db = new \Atk4\Data\Persistence\Sql('sqlite:' . $db_file);
+// to use MySQL database:
+//   1. copy this file to "db.php"
+//   2. uncomment the line below (and update the configuration if needed)
+//   3. remove the Sqlite code from the new file
+// $db = new Persistence\Sql('mysql:dbname=atk4_test__ui;host=mysql', 'atk4_test', 'atk4_pass');
 
-if (!$db_exists) {
-    (new Migrator(new Mail($db)))->dropIfExists()->create();
-    (new Migrator(new MailTemplate($db)))->dropIfExists()->create();
-    (new Migrator(new MailResponse($db)))->dropIfExists()->create();
-    (new Migrator(new User($db)))->dropIfExists()->create();
+$sqliteFile = __DIR__ . '/_demo-data/db.sqlite';
+if (!file_exists($sqliteFile)) {
+    throw new \Exception('Sqlite database does not exist, create it first.');
 }
-
-return $db;
+$db = new Persistence\Sql('sqlite:' . $sqliteFile);
+unset($sqliteFile);

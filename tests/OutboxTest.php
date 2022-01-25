@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Atk4\Outbox\Tests;
 
 use Atk4\Core\Exception;
-use Atk4\Data\Persistence;
 use Atk4\Outbox\Model\Mail;
 use Atk4\Outbox\Outbox;
 use Atk4\Ui\App;
@@ -40,7 +39,10 @@ class OutboxTest extends GenericTestCase
 
     private function getApp(): App
     {
-        $app = new App();
+        $app = new App([
+            'always_run' => false,
+            'call_exit' => false,
+        ]);
         $app->initLayout([Layout::class]);
 
         $app->add([Outbox::class, [

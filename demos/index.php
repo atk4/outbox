@@ -2,7 +2,8 @@
 
 declare(strict_types=1);
 
-use Atk4\Outbox\Demos\App;
+namespace Atk4\Outbox\Demos;
+
 use Atk4\Outbox\Model\Mail;
 use Atk4\Outbox\Outbox;
 use Atk4\Outbox\Tests\FakeMailer;

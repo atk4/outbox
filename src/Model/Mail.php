@@ -146,13 +146,13 @@ class Mail extends Model
             }
 
             if (is_a($field->getReference(), ContainsMany::class, true) && !empty($this->get($fieldname))) {
-                $entity_template->ref($fieldname)->import($this->get($fieldname) ?? []);
+                $entity_template->ref($fieldname)->import($this->get($fieldname));
 
                 continue;
             }
 
             if (is_a($field->getReference(), ContainsOne::class, true) && !empty($this->get($fieldname))) {
-                $entity_template->ref($fieldname)->save($this->get($fieldname) ?? []);
+                $entity_template->ref($fieldname)->save($this->get($fieldname));
 
                 continue;
             }

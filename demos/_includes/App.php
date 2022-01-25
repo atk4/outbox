@@ -65,7 +65,7 @@ class App extends \Atk4\Ui\App
             }
         });
 
-        /** @var Layout $layout */
+        /** @var Layout\Admin $layout */
         $layout = $this->layout;
 
         $layout->menuLeft->addItem(['Mail Tracking', 'icon' => 'envelope'])->on('click', $loader->jsLoad(['route' => 'mail']));

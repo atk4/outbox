@@ -21,4 +21,3 @@ parameters:
     reportStaticMethodSignatures: true
     checkTooWideReturnTypesInProtectedAndPublicMethods: true
     checkMissingIterableValueType: false # TODO true
-    checkMissingIterableValueType: false # TODO

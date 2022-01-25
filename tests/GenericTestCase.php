@@ -41,13 +41,6 @@ abstract class GenericTestCase extends BaseTestCase
         ]);
     }
 
-    private function getTableFromModel(string $className): string
-    {
-        $refl = new \ReflectionClass($className);
-
-        return $refl->getDefaultProperties()['table'];
-    }
-
     private function prepareMailTemplate(): void
     {
         $mail_template = (new MailTemplate($this->db))->tryLoadBy('identifier', 'template_test');
