@@ -6,7 +6,7 @@ namespace Atk4\Outbox\Mailer;
 
 use PHPMailer\PHPMailer\SMTP as PHPMailerSMTP;
 
-class SMTP extends AbstractMailer
+class Smtp extends AbstractMailer
 {
     /** @var int */
     protected $debug = PHPMailerSMTP::DEBUG_OFF;

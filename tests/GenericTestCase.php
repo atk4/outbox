@@ -98,7 +98,7 @@ abstract class GenericTestCase extends BaseTestCase
         ]);
     }
 
-    private function getReflectionModelTableName($modelclass): string
+    private function getReflectionModelTableName(string $modelclass): string
     {
         $reflection_model = new \ReflectionClass($modelclass);
 
