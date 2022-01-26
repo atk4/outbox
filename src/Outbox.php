@@ -14,30 +14,20 @@ class Outbox extends AbstractView
 {
     /**
      * Mailer.
+     *
+     * @var array|MailerInterface
      */
-    protected MailerInterface $mailer;
+    protected $mailer;
 
     /**
      * Default Mail model.
+     *
+     * @var array|Mail
      */
-    protected Mail $model;
+    protected $model;
 
     public function __construct(array $defaults = [])
     {
-        // required
-        if (!isset($defaults['mailer'])) {
-            throw new Exception('mailer is required');
-        }
-
-        if (!isset($defaults['model'])) {
-            throw new Exception('mail model is required');
-        }
-
-        // do factory if needed
-        if (!is_object($defaults['mailer'])) {
-            $defaults['mailer'] = Factory::factory($defaults['mailer']);
-        }
-
         // using typed property, let it crash in set defaults
         $this->setDefaults($defaults);
     }
@@ -80,12 +70,31 @@ class Outbox extends AbstractView
     {
         parent::init();
 
-        // Setup app, if present
-        $this->getApp()->addMethod(
-            'getOutbox',
-            function (): self {
-                return $this;
-            }
-        );
+        // required
+        if (empty($this->mailer)) {
+            throw new Exception('mailer is required');
+        }
+
+        if (empty($this->model)) {
+            throw new Exception('mail model is required');
+        }
+
+        if (is_array($this->mailer)) {
+            $this->mailer = Factory::factory($this->mailer);
+        }
+
+        if (is_array($this->model)) {
+            $this->model = Factory::factory($this->model);
+        }
+
+        if (!is_a($this->mailer, MailerInterface::class, true)) {
+            throw new Exception('mailer must implement interface ' . MailerInterface::class);
+        }
+
+        if (!is_a($this->model, Mail::class, true)) {
+            throw new Exception('mail model must be a subclass of ' . Mail::class);
+        }
+
+        $this->getApp()->addMethod('getOutbox', fn (): self => $this);
     }
 }

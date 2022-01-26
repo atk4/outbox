@@ -21,7 +21,7 @@ class MailTemplate extends Model
 
         $this->containsMany('replyto', ['model' => [MailAddress::class]]);
 
-        $this->containsMany('header', ['model' => [MailHeader::class]]);
+        $this->containsMany('headers', ['model' => [MailHeader::class]]);
 
         $this->containsMany('to', ['model' => [MailAddress::class]]);
         $this->containsMany('cc', ['model' => [MailAddress::class]]);
@@ -32,7 +32,7 @@ class MailTemplate extends Model
         $this->addField('text', ['type' => 'text']);
         $this->addField('html', ['type' => 'text']);
 
-        $this->containsMany('attachment', ['model' => [MailAttachment::class]]);
+        $this->containsMany('attachments', ['model' => [MailAttachment::class]]);
 
         $this->containsMany('tokens', ['model' => [MailTemplateToken::class]]);
 

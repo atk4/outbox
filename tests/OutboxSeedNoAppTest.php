@@ -7,13 +7,13 @@ namespace Atk4\Outbox\Tests;
 use Atk4\Outbox\Model\Mail;
 use Atk4\Outbox\Outbox;
 
-class OutboxNoAppTest extends BaseOutboxTestCase
+class OutboxSeedNoAppTest extends BaseOutboxTestCase
 {
     protected function getOutbox(): Outbox
     {
         $outbox = new Outbox([
-            'mailer' => new FakeMailer(),
-            'model' => new Mail($this->db),
+            'mailer' => [FakeMailer::class],
+            'model' => [Mail::class, $this->db],
         ]);
         $outbox->invokeInit();
 
