@@ -7,15 +7,14 @@ namespace Atk4\Outbox\Tests;
 use Atk4\Outbox\Model\Mail;
 use Atk4\Outbox\Outbox;
 
-/**
- * Class OutboxTest.
- */
 abstract class BaseOutboxTestCase extends GenericTestCase
 {
     abstract protected function getOutbox(): Outbox;
 
     public function testSendCallable(): void
     {
+        $this->setupDefaultDb();
+
         $this->getOutbox()->callableSend(function (Mail $mail) {
             $entity = $mail->withTemplateIdentifier('template_test');
             $entity->replaceContent('token', 'Agile Toolkit');
@@ -38,6 +37,8 @@ abstract class BaseOutboxTestCase extends GenericTestCase
 
     public function testSend(): void
     {
+        $this->setupDefaultDb();
+
         $outbox = $this->getOutbox();
 
         $mail = $outbox->new()
@@ -60,6 +61,8 @@ abstract class BaseOutboxTestCase extends GenericTestCase
 
     public function testMailSaveAsTemplate(): void
     {
+        $this->setupDefaultDb();
+
         $mail_model = new Mail($this->db);
 
         $entity = $mail_model->createEntity();
@@ -96,6 +99,8 @@ abstract class BaseOutboxTestCase extends GenericTestCase
 
     public function testWithAddress(): void
     {
+        $this->setupDefaultDb();
+
         $outbox = $this->getOutbox();
 
         $mail = $outbox->new()
@@ -118,6 +123,8 @@ abstract class BaseOutboxTestCase extends GenericTestCase
 
     public function testWithAddressAdvanced(): void
     {
+        $this->setupDefaultDb();
+
         $user_model = new User($this->db);
         $user_model = $user_model->loadAny();
 

@@ -11,18 +11,6 @@ use Atk4\Outbox\Model\MailTemplate;
 
 abstract class GenericTestCase extends BaseTestCase
 {
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        $this->setupDefaultDb();
-    }
-
-    protected function tearDown(): void
-    {
-        parent::tearDown();
-    }
-
     protected function setupDefaultDb(): void
     {
         $template_body = 'hi to all,|this is outbox library of {{token}}.||have a good day.';
@@ -100,8 +88,6 @@ abstract class GenericTestCase extends BaseTestCase
 
     private function getReflectionModelTableName(string $modelclass): string
     {
-        $reflection_model = new \ReflectionClass($modelclass);
-
-        return $reflection_model->getDefaultProperties()['table'];
+        return (new \ReflectionClass($modelclass))->getDefaultProperties()['table'];
     }
 }

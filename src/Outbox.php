@@ -14,17 +14,13 @@ class Outbox extends AbstractView
 {
     /**
      * Mailer.
-     *
-     * @var array|MailerInterface
      */
-    protected $mailer;
+    protected ?MailerInterface $mailer;
 
     /**
      * Default Mail model.
-     *
-     * @var array|Mail
      */
-    protected $model;
+    protected ?Mail $model;
 
     public function __construct(array $defaults = [])
     {
@@ -77,22 +73,6 @@ class Outbox extends AbstractView
 
         if (empty($this->model)) {
             throw new Exception('mail model is required');
-        }
-
-        if (is_array($this->mailer)) {
-            $this->mailer = Factory::factory($this->mailer);
-        }
-
-        if (is_array($this->model)) {
-            $this->model = Factory::factory($this->model);
-        }
-
-        if (!is_a($this->mailer, MailerInterface::class, true)) {
-            throw new Exception('mailer must implement interface ' . MailerInterface::class);
-        }
-
-        if (!is_a($this->model, Mail::class, true)) {
-            throw new Exception('mail model must be a subclass of ' . Mail::class);
         }
 
         $this->getApp()->addMethod('getOutbox', fn (): self => $this);

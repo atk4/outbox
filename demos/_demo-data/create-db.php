@@ -22,9 +22,17 @@ unset($sqliteFile);
 /** @var Persistence\Sql $db */
 require_once __DIR__ . '/../init-db.php';
 
+echo 'GITHUB_JOB : ' . getenv('GITHUB_JOB') . PHP_EOL . PHP_EOL;
+
+if (getenv('GITHUB_JOB') === 'unit-test') {
+    echo 'skip db creation in create-db' . PHP_EOL . PHP_EOL;
+
+    return;
+}
+
 (new Migrator(new Mail($db)))->dropIfExists()->create();
 (new Migrator(new MailTemplate($db)))->dropIfExists()->create();
 (new Migrator(new MailResponse($db)))->dropIfExists()->create();
 (new Migrator(new User($db)))->dropIfExists()->create();
 
-echo 'import complete!' . "\n\n";
+echo 'import complete!' . PHP_EOL . PHP_EOL;
