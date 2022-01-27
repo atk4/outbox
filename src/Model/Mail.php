@@ -33,8 +33,7 @@ class Mail extends Model
 
     public $caption = 'Mail';
 
-    /** @var string */
-    public $mail_template_default = MailTemplate::class;
+    public string $mail_template_default = MailTemplate::class;
 
     public function withTemplateIdentifier(string $identifier): self
     {
