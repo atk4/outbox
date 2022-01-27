@@ -1,4 +1,3 @@
-docs/build
 /composer.lock
 /build
 /vendor
@@ -7,3 +6,4 @@ docs/build
 /demos/db.sqlite
 /demos/db.php
 /demos/_demo-data/db.sqlite
+/demos/_demo-data/db.sqlite-journal

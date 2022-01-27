@@ -21,7 +21,7 @@
   },
   "require-release": {
     "php": ">=7.4 <8.2",
-    "atk4/data": "^3.1.0",
+    "atk4/data": "~3.1.0",
     "phpmailer/phpmailer": "^v6.4.1"
   },
   "require-dev": {
