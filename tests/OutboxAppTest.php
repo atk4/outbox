@@ -20,6 +20,7 @@ class OutboxAppTest extends BaseOutboxTestCase
         $app = new App([
             'always_run' => false,
             'call_exit' => false,
+            'catch_exceptions' => false,
         ]);
         $app->initLayout([Layout::class]);
 
