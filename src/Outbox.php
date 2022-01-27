@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Atk4\Outbox;
 
 use Atk4\Core\Exception;
-use Atk4\Core\Factory;
 use Atk4\Outbox\Model\Mail;
 use Atk4\Outbox\Model\MailResponse;
 use Atk4\Ui\AbstractView;
