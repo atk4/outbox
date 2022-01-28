@@ -1,11 +1,8 @@
-includes:
-    - vendor/mahalux/atk4-hintable/phpstan-ext.neon
-
 parameters:
     level: 6
     paths:
         - ./
-    excludes_analyse:
+    excludePaths:
         - cache/
         - build/
         - vendor/
@@ -23,4 +20,4 @@ parameters:
     reportMaybesInMethodSignatures: true
     reportStaticMethodSignatures: true
     checkTooWideReturnTypesInProtectedAndPublicMethods: true
-    checkMissingIterableValueType: false # TODO
+    checkMissingIterableValueType: false # TODO true

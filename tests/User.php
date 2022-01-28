@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Atk4\Outbox\Test;
+namespace Atk4\Outbox\Tests;
 
 use Atk4\Data\Model;
 use Atk4\Data\Persistence\Array_;
@@ -28,7 +28,7 @@ class User extends Model
 
     public function getMailAddress(): MailAddress
     {
-        $address = new MailAddress(new Array_());
+        $address = (new MailAddress(new Array_()))->createEntity();
         $address->set('email', $this->get('email'));
         $address->set('name', $this->get('first_name') . ' ' . $this->get('last_name'));
 

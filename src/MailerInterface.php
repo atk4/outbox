@@ -9,5 +9,5 @@ use Atk4\Outbox\Model\MailResponse;
 
 interface MailerInterface
 {
-    public function send(Mail $Message): MailResponse;
+    public function send(Mail $mail): MailResponse;
 }

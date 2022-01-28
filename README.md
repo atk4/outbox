@@ -1,27 +1,76 @@
+## ATK4 Outbox
+
 Most of the Web Apps will need to communicate with user. Following the task-centric approach, this add-on for ATK implements various components for helping communicate with the user.
 
-``` php
-// Send password reminder to a user with a corresponding email.
-$user->tryLoadBy('email', $email);
-if (!$user->loaded()) {
-    return 'no user with this email';
-}
+The idea behind is to avoid errors, 
 
-$user->set('reminder_token', uniqid())->save();
-$user->ref('Messages')
-    ->new('password reminder', 'reminder', ['link'=>$user['reminder_token']])
-    ->send();
+### How to install
+`composer require atk4/outbox`
+
+### How to use with Atk4/Ui
+
+Add the lines below after calling `$app->initLayout()` of Application add it as a normal View
+```php
+$app->add([Outbox::class, [
+    'mailer' => new Sendmail(),
+    'model' => new Mail($this->db),
+]]);
+```
+After that you can call from any view `$this->getApp()->getOutbox()`
+
+### How to use without Atk4/Ui
+
+Add the code below :
+```php
+$outbox = new Outbox([
+    'mailer' => new Sendmail(),
+    'model' => new Mail($this->db),
+]);
+$outbox->invokeInit();
+```
+Use it
+
+### Mailer Configuration (PHMailer)
+
+ - Sendmail
+ - Gmail
+   - can be customized via Atk4 direct injection :
+     - username
+     - password
+ - Smtp
+   - can be customized via Atk4 direct injection :
+     - debug = PHPMailer::DEBUG_OFF;
+     - auth = false
+     - host = 'localhost';
+     - port = 587;
+     - secure = PHPMailer::ENCRYPTION_*
+     - username
+     - password 
+    
+
+
+### How to use it
+``` php
+// request an email from outbox  
+$mail = $outbox->new();
+// use an already saved mail template
+$mail->withTemplateIdentifier('template_test');
+// replace token with data
+$mail->replaceContent('token', 'Agile Toolkit');
+
+// Add a custom to address
+$mail->ref('to')->createEntity()->save([
+    'email' => 'destination@email.it',
+    'name' => 'destination',
+]);
+
+// send the mail and check the response 
+$response = $outbox->send($mail);
 ```
 
-Here are few key points that makes this implementation different:
-
--   We recognize that Mail Gateway Templates / API is the best way to send mail and focus on that.
--   We understand that in most Apps it should be possible to configure which messages user receives.
--   We want to encourage use of alternative transports, e.g. SMS messages or push notifications.
--   Our messages are persisted (stored in database), so you can re-send.
--   We recognize that "from" address will remain same, that we may add global "bcc" and may also need to disable "send by default" for development environment. 
-
-aoeu
-
-
-
+#### TODO
+ - Store token present in a template, inside a field (there is only a draft)
+ - Add more helper to Mail model or create a controller to manipulate it
+ - Add Ui wysiwyg editor to modify templates
+ - Add Resend of failed messages
+ - if you have more, feel free to open an issue
