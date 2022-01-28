@@ -1,15 +1,15 @@
 ## ATK4 Outbox
 
-Most of the Web Apps will need to communicate with user. Following the task-centric approach, this add-on for ATK implements various components for helping communicate with the user.
+Most web applications will need to communicate with the user. Following the task-centric approach, this add-on for ATK implements various components to help communicate with the user.
 
-The idea behind is to avoid errors, 
+The basic idea is to avoid errors and provide only one way to use the component.
 
 ### How to install
 `composer require atk4/outbox`
 
 ### How to use with Atk4/Ui
 
-Add the lines below after calling `$app->initLayout()` of Application add it as a normal View
+Add the lines below after calling `$app->initLayout()`
 ```php
 $app->add([Outbox::class, [
     'mailer' => new Sendmail(),
@@ -26,19 +26,21 @@ $outbox = new Outbox([
     'mailer' => new Sendmail(),
     'model' => new Mail($this->db),
 ]);
-$outbox->invokeInit();
 ```
-Use it
+Due to missing App, init is not called so you have to do it you have to run it
+```php
+$outbox->invokeInit(); 
+```
 
-### Mailer Configuration (PHMailer)
+### Mailer (PHMailer)
 
  - Sendmail
  - Gmail
-   - can be customized via Atk4 direct injection :
+   - can be customized using Atk4 direct injection :
      - username
      - password
  - Smtp
-   - can be customized via Atk4 direct injection :
+   - can be customized using Atk4 direct injection :
      - debug = PHPMailer::DEBUG_OFF;
      - auth = false
      - host = 'localhost';
@@ -47,18 +49,27 @@ Use it
      - username
      - password 
     
+### Extend Mailer
 
+Whatever your needs are you must respect only the contract provided by the `MailerInterface` interface.
+So, any Traditional SMTP or API SMTP can be added only by create a new class and define 
+the method : `send(Mail $mail): MailResponse`, add to Outbox during initialization and use it.
+
+If you create a new Mailer, feel free to open a PR.
 
 ### How to use it
 ``` php
-// request an email from outbox  
+
+// request an new email from outbox  
 $mail = $outbox->new();
+
 // use an already saved mail template
 $mail->withTemplateIdentifier('template_test');
+
 // replace token with data
 $mail->replaceContent('token', 'Agile Toolkit');
 
-// Add a custom to address
+// Add a custom address as "to"
 $mail->ref('to')->createEntity()->save([
     'email' => 'destination@email.it',
     'name' => 'destination',
@@ -69,8 +80,9 @@ $response = $outbox->send($mail);
 ```
 
 #### TODO
- - Store token present in a template, inside a field (there is only a draft)
- - Add more helper to Mail model or create a controller to manipulate it
- - Add Ui wysiwyg editor to modify templates
- - Add Resend of failed messages
- - if you have more, feel free to open an issue
+ - Store the token present in a template, inside a field (at the moment, there is only a draft)
+ - Add more helpers to the Mail template or create a controller to manipulate it and leave it simpler as a descriptor
+ - Add a wysiwyg editor to edit individual templates (UI)
+ - Add resend system for failed messages
+ - Send SMS
+ - If you have more ideas, feel free to open an issue
