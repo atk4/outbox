@@ -4,6 +4,7 @@ Most web applications will need to communicate with the user. Following the task
 
 The basic idea is to avoid errors and provide only one way to use the component.
 
+
 ### How to install
 `composer require atk4/outbox`
 
