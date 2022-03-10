@@ -27,7 +27,8 @@ abstract class AbstractMailer implements MailerInterface
 
     public function send(Mail $mail): MailResponse
     {
-        $mail_response = new MailResponse($mail->persistence);
+        $response_model = new MailResponse($mail->persistence);
+        $response_entity = $response_model->createEntity();
 
         try {
             $this->phpmailer->setFrom(
@@ -101,19 +102,23 @@ abstract class AbstractMailer implements MailerInterface
 
             $mail->set('status', Mail::STATUS_SENDING);
             $mail->save();
-            $this->phpmailer->send();
+
+            if (!$this->phpmailer->send()) {
+                throw new \Exception($this->phpmailer->ErrorInfo, 500);
+            }
+
             $mail->set('status', Mail::STATUS_SENT);
             $mail->save();
 
             // save successful MailResponse
-            $mail_response->save(['email_id' => $mail->id]);
+            $response_entity->save(['email_id' => $mail->id]);
         } catch (\Throwable $exception) {
             $mail->set('status', Mail::STATUS_ERROR);
             $mail->save();
 
             // save unsuccessful MailResponse
-            $mail_response->save([
-                'email_id' => $mail->id,
+            $response_entity->save([
+                'email_id' => $mail->getId(),
                 'code' => $exception->getCode(),
                 'message' => $exception->getMessage(),
             ]);
@@ -121,7 +126,7 @@ abstract class AbstractMailer implements MailerInterface
             throw $exception;
         }
 
-        return $mail_response;
+        return $response_entity;
     }
 
     private function addAddress(Mail $mail, string $ref_name, callable $func): void
