@@ -27,7 +27,7 @@ abstract class AbstractMailer implements MailerInterface
 
     public function send(Mail $mail): MailResponse
     {
-        $response_model = new MailResponse($mail->persistence);
+        $response_model = new MailResponse($mail->getPersistence());
         $response_entity = $response_model->createEntity();
 
         try {

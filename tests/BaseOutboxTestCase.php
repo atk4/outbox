@@ -89,7 +89,7 @@ abstract class BaseOutboxTestCase extends GenericTestCase
         $template_model = $entity->saveAsTemplate('new_mail_template');
 
         foreach ($template_model->getFields() as $fieldname => $field) {
-            if ($fieldname === $template_model->id_field || !$entity->hasField($fieldname)) {
+            if ($fieldname === $template_model->idField || !$entity->hasField($fieldname)) {
                 continue;
             }
 

@@ -15,7 +15,7 @@ class FakeMailer implements MailerInterface
         $mail->set('status', Mail::STATUS_SENDING);
         $mail->save();
 
-        $response = new MailResponse($mail->persistence);
+        $response = new MailResponse($mail->getPersistence());
         $entity = $response->createEntity();
 
         $mail->set('status', Mail::STATUS_SENT);

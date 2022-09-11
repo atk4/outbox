@@ -13,7 +13,7 @@ use Atk4\Outbox\Outbox;
 /**
  * Class Mail.
  */
-class Mail extends Model
+class Mail extends AbstractMailModel
 {
     public const STATUS_DRAFT = 'DRAFT';
     public const STATUS_READY = 'READY';
@@ -38,7 +38,7 @@ class Mail extends Model
     public function withTemplateIdentifier(string $identifier): self
     {
         /** @var MailTemplate $template */
-        $template = new $this->mail_template_default($this->persistence);
+        $template = new $this->mail_template_default($this->getPersistence());
         $entity = $template->tryLoadBy('identifier', $identifier);
 
         if (!$entity->isLoaded()) {
@@ -58,8 +58,32 @@ class Mail extends Model
         $this->allowProcessing();
 
         foreach ($template->get() as $fieldname => $value) {
-            if ($fieldname !== $this->id_field && $this->hasField($fieldname)) {
-                $this->set($fieldname, $value);
+            if ($fieldname !== $this->idField && $this->hasField($fieldname)) {
+
+                $field = $this->getField($fieldname);
+
+                if (!$field->hasReference()) {
+                    $this->set($fieldname, $value);
+                    continue;
+                }
+
+                $referenceClass = $field->getReference();
+
+                if (is_a($referenceClass, ContainsMany::class, true)) {
+                    if (!empty($value)) {
+                        $this->ref($fieldname)->import($value);
+                    }
+
+                    continue;
+                }
+
+                if (is_a($referenceClass, ContainsOne::class, true)) {
+                    if (!empty($value)) {
+                        $this->ref($fieldname)->save($value);
+                    }
+
+                    continue;
+                }
             }
         }
 
@@ -130,17 +154,27 @@ class Mail extends Model
 
     public function saveAsTemplate(string $identifier, bool $overwrite = false): MailTemplate
     {
-        $model = new MailTemplate($this->persistence);
-        $model->addCondition('identifier', $identifier);
+        /** @var MailTemplate $template */
+        $template = new $this->mail_template_default($this->getPersistence());
+        $template->addCondition('identifier', $identifier);
 
-        $entity_template = $model->tryLoadAny();
+        $entity_template = $template->tryLoadAny();
 
-        if ($overwrite && $entity_template->isLoaded()) {
+        if ($overwrite && $entity_template !== null) {
             throw new \Atk4\Ui\Exception('Template Identifier already exists');
         }
 
+        if ($entity_template === null) {
+            $entity_template = $template->createEntity();
+        }
+
         foreach ($this->getFields() as $fieldname => $field) {
-            if ($fieldname === $this->id_field || !$entity_template->hasField($fieldname)) {
+            if ($fieldname === $this->idField || !$entity_template->hasField($fieldname)) {
+                continue;
+            }
+
+            if (!$field->hasReference()) {
+                $entity_template->set($fieldname, $this->get($fieldname));
                 continue;
             }
 
@@ -155,10 +189,6 @@ class Mail extends Model
 
                 continue;
             }
-
-            if ($field->getReference() === null) {
-                $entity_template->set($fieldname, $this->get($fieldname));
-            }
         }
 
         return $entity_template->save();
@@ -167,22 +197,6 @@ class Mail extends Model
     protected function init(): void
     {
         parent::init();
-
-        $this->containsOne('from', ['model' => [MailAddress::class]]);
-        $this->containsMany('replyto', ['model' => [MailAddress::class]]);
-
-        $this->containsMany('headers', ['model' => [MailHeader::class]]);
-
-        $this->containsMany('to', ['model' => [MailAddress::class]]);
-        $this->containsMany('cc', ['model' => [MailAddress::class]]);
-        $this->containsMany('bcc', ['model' => [MailAddress::class]]);
-
-        $this->addField('subject');
-
-        $this->addField('text', ['type' => 'text']);
-        $this->addField('html', ['type' => 'text']);
-
-        $this->containsMany('attachments', ['model' => [MailAttachment::class]]);
 
         $this->addField('status', [
             'values' => array_combine(
@@ -194,7 +208,7 @@ class Mail extends Model
 
         $this->hasMany('response', [
             'model' => [MailResponse::class],
-            'their_field' => 'email_id',
+            'theirField' => 'email_id',
         ]);
     }
 }

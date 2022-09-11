@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace Atk4\Outbox\Model;
 
-use Atk4\Data\Model;
-
-class MailTemplate extends Model
+class MailTemplate extends AbstractMailModel
 {
     public $table = 'mail_template';
     public $caption = 'Mail Template';
@@ -16,23 +14,6 @@ class MailTemplate extends Model
         parent::init();
 
         $this->addField('identifier');
-
-        $this->containsOne('from', ['model' => [MailAddress::class]]);
-
-        $this->containsMany('replyto', ['model' => [MailAddress::class]]);
-
-        $this->containsMany('headers', ['model' => [MailHeader::class]]);
-
-        $this->containsMany('to', ['model' => [MailAddress::class]]);
-        $this->containsMany('cc', ['model' => [MailAddress::class]]);
-        $this->containsMany('bcc', ['model' => [MailAddress::class]]);
-
-        $this->addField('subject');
-
-        $this->addField('text', ['type' => 'text']);
-        $this->addField('html', ['type' => 'text']);
-
-        $this->containsMany('attachments', ['model' => [MailAttachment::class]]);
 
         $this->containsMany('tokens', ['model' => [MailTemplateToken::class]]);
 
@@ -62,7 +43,7 @@ class MailTemplate extends Model
         $tokens = $this->ref('tokens')->export(null, 'token');
         $new_tokens = [];
 
-        //$this->set('tokens', []);
+        // $this->set('tokens', []);
 
         // @todo can be done better?
         foreach ($matches as [$match, $token]) {

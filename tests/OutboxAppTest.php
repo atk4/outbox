@@ -18,9 +18,9 @@ class OutboxAppTest extends BaseOutboxTestCase
     protected function getOutbox(): Outbox
     {
         $app = new App([
-            'always_run' => false,
-            'call_exit' => false,
-            'catch_exceptions' => false,
+            'alwaysRun' => false,
+            'callExit' => false,
+            'catchExceptions' => false,
         ]);
         $app->initLayout([Layout::class]);
 
