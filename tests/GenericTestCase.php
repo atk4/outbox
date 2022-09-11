@@ -40,7 +40,7 @@ abstract class GenericTestCase extends BaseTestCase
                     'email_id' => 1,
                     'code' => '',
                     'message' => '',
-                    'timestamp' => (new \Datetime())->format('Y-m-d H:i:s'),
+                    'timestamp' => (new \DateTime())->format('Y-m-d H:i:s'),
                 ],
             ],
             $this->getReflectionModelTableName(MailTemplate::class) => [

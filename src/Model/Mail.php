@@ -59,11 +59,11 @@ class Mail extends AbstractMailModel
 
         foreach ($template->get() as $fieldname => $value) {
             if ($fieldname !== $this->idField && $this->hasField($fieldname)) {
-
                 $field = $this->getField($fieldname);
 
                 if (!$field->hasReference()) {
                     $this->set($fieldname, $value);
+
                     continue;
                 }
 
@@ -175,6 +175,7 @@ class Mail extends AbstractMailModel
 
             if (!$field->hasReference()) {
                 $entity_template->set($fieldname, $this->get($fieldname));
+
                 continue;
             }
 

@@ -23,7 +23,7 @@ class User extends Model
 
         $this->addField('email');
 
-        //$this->addExpression('name', '([first_name] || [last_name])');
+        // $this->addExpression('name', '([first_name] || [last_name])');
     }
 
     public function getMailAddress(): MailAddress

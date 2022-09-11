@@ -1,9 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Atk4\Outbox\Model;
 
 use Atk4\Data\Model;
-use Atk4\Data\Persistence\Array_;
 
 abstract class AbstractMailModel extends Model
 {
