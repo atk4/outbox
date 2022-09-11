@@ -22,6 +22,7 @@ class OutboxAppTest extends BaseOutboxTestCase
             'callExit' => false,
             'catchExceptions' => false,
         ]);
+        $app->db = $this->db;
         $app->initLayout([Layout::class]);
 
         $app->add(
