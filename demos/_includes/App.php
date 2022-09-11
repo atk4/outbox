@@ -22,7 +22,7 @@ class App extends \Atk4\Ui\App
 
         $this->initLayout([Layout\Admin::class]);
 
-        $loader = Loader::addTo($this);
+        $loader = Loader::addTo($this, ['loadEvent' => false]);
         $loader->set(function (Loader $l) {
             $route = $l->getApp()->stickyGet('route');
             $route = empty($route) ? 'mail' : $route;
@@ -33,8 +33,10 @@ class App extends \Atk4\Ui\App
 
                     $model = new Mail($this->db);
                     $model->getField('html')->system = true;
-                    $model->addExpression('time', $model->refLink('response')->action('field', ['timestamp']));
-                    $model->setOrder('id', 'DESC');
+                    $model->addExpression('time', [
+                        'expr' => $model->refLink('response')->action('field', ['timestamp']),
+                    ]);
+                    $model->setOrder('id', 'desc');
 
                     $grid->setModel($model);
 

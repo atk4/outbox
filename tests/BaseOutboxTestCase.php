@@ -52,11 +52,11 @@ abstract class BaseOutboxTestCase extends GenericTestCase
 
         $response = $outbox->send($mail);
 
-        $this->assertSame(
+        static::assertSame(
             'hi to all,<br/>this is outbox library of Agile Toolkit.<br/><br/>have a good day.',
             $mail->get('html')
         );
-        $this->assertSame($response->get('email_id'), $mail->id);
+        static::assertSame($response->get('email_id'), $mail->id);
     }
 
     public function testMailSaveAsTemplate(): void
@@ -93,7 +93,7 @@ abstract class BaseOutboxTestCase extends GenericTestCase
                 continue;
             }
 
-            $this->assertSame($template_model->get($fieldname), $entity->get($fieldname), $fieldname);
+            static::assertSame($template_model->get($fieldname), $entity->get($fieldname), $fieldname);
         }
     }
 
@@ -114,11 +114,11 @@ abstract class BaseOutboxTestCase extends GenericTestCase
 
         $response = $outbox->send($mail);
 
-        $this->assertSame(
+        static::assertSame(
             'hi to all,<br/>this is outbox library of Agile Toolkit.<br/><br/>have a good day.',
             $mail->get('html')
         );
-        $this->assertSame($response->get('email_id'), $mail->id);
+        static::assertSame($response->get('email_id'), $mail->id);
     }
 
     public function testWithAddressAdvanced(): void
@@ -177,10 +177,10 @@ abstract class BaseOutboxTestCase extends GenericTestCase
 
         $response = $outbox->send($mail);
 
-        $this->assertSame(
+        static::assertSame(
             'hi to all,<br/>this is outbox library of Agile Toolkit.<br/><br/>have a good day.<br/><br/>John Doe',
             $mail->get('html')
         );
-        $this->assertSame($response->get('email_id'), $mail->id);
+        static::assertSame($response->get('email_id'), $mail->id);
     }
 }

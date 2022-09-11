@@ -29,15 +29,15 @@ class MailTemplate extends AbstractMailModel
         $matches = [];
 
         $tmp = [];
-        preg_match_all($re, $this->get('subject'), $tmp, PREG_SET_ORDER, 0);
+        preg_match_all($re, $this->get('subject'), $tmp, \PREG_SET_ORDER, 0);
         $matches = array_merge($matches, $tmp);
 
         $tmp = [];
-        preg_match_all($re, $this->get('html'), $tmp, PREG_SET_ORDER, 0);
+        preg_match_all($re, $this->get('html'), $tmp, \PREG_SET_ORDER, 0);
         $matches = array_merge($matches, $tmp);
 
         $tmp = [];
-        preg_match_all($re, $this->get('text'), $tmp, PREG_SET_ORDER, 0);
+        preg_match_all($re, $this->get('text'), $tmp, \PREG_SET_ORDER, 0);
         $matches = array_merge($matches, $tmp);
 
         $tokens = $this->ref('tokens')->export(null, 'token');

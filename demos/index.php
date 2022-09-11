@@ -13,7 +13,9 @@ include dirname(__DIR__) . '/vendor/autoload.php';
 /** @var App $app */
 require __DIR__ . '/init-app.php';
 
-$app->add([Outbox::class, [
-    'mailer' => new FakeMailer(),
-    'model' => new Mail($app->db),
-]]);
+$app->add(
+    new Outbox([
+        'mailer' => new FakeMailer(),
+        'model' => new Mail($app->db),
+    ])
+);

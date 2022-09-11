@@ -24,10 +24,12 @@ class OutboxAppTest extends BaseOutboxTestCase
         ]);
         $app->initLayout([Layout::class]);
 
-        $app->add([Outbox::class, [
-            'mailer' => new FakeMailer(),
-            'model' => new Mail($this->db),
-        ]]);
+        $app->add(
+            new Outbox([
+                'mailer' => new FakeMailer(),
+                'model' => new Mail($app->db),
+            ])
+        );
 
         if (!is_callable([$app, 'getOutbox'])) {
             throw new Exception('App without getOutbox method');

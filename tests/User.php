@@ -12,7 +12,7 @@ class User extends Model
 {
     public $table = 'user';
 
-    public $title_field = 'email';
+    public ?string $titleField = 'email';
 
     protected function init(): void
     {
@@ -22,8 +22,6 @@ class User extends Model
         $this->addField('last_name');
 
         $this->addField('email');
-
-        // $this->addExpression('name', '([first_name] || [last_name])');
     }
 
     public function getMailAddress(): MailAddress
