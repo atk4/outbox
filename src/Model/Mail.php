@@ -41,7 +41,7 @@ class Mail extends AbstractMailModel
         $template = new $this->mail_template_default($this->getPersistence());
         $entity = $template->tryLoadBy('identifier', $identifier);
 
-        if (!$entity->isLoaded()) {
+        if ($entity === null) {
             throw new Exception('template "' . $identifier . '" not exists');
         }
 
