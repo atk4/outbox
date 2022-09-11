@@ -24,7 +24,7 @@
         "phpmailer/phpmailer": "^v6.5.3"
     },
     "require-dev": {
-        "atk4/ui": "~3.2.0",
+        "atk4/ui": "dev-develop",
         "ergebnis/composer-normalize": "^2.13",
         "friendsofphp/php-cs-fixer": "^3.0",
         "johnkary/phpunit-speedtrap": "^3.3",
