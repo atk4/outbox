@@ -10,16 +10,22 @@ class Smtp extends AbstractMailer
 {
     /** @var int */
     protected $debug = PHPMailerSMTP::DEBUG_OFF;
+
     /** @var bool */
     protected $auth = false;
+
     /** @var string */
     protected $host = 'localhost';
+
     /** @var int */
     protected $port = 587;
+
     /** @var string */
     protected $secure = '';
+
     /** @var string */
     protected $username;
+
     /** @var string */
     protected $password;
 

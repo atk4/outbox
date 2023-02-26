@@ -24,7 +24,7 @@ jobs:
             type: 'StaticAnalysis'
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v2
 
       - name: Configure PHP
         run: |
@@ -62,8 +62,6 @@ jobs:
         run: |
           if [ "$(find demos/ -name '*.php' -print0 | xargs -0 grep -L "namespace Atk4\\\\Outbox\\\\Demos[;\\\\]" | tee /dev/fd/2)" ]; then echo 'All demos/ files must have namespace declared' && (exit 1); fi
           vendor/bin/php-cs-fixer fix --dry-run --using-cache=no --diff --verbose
-          composer config --unset version && composer config --unset require-release
-          composer validate --strict --no-check-lock && composer normalize --dry-run --no-check-lock
 
       - name: Run Static Analysis (only for StaticAnalysis)
         if: matrix.type == 'StaticAnalysis'
@@ -79,7 +77,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: ['7.4', '8.0', '8.1', '8.2']
+        php: ['7.4', '8.0', '8.1']
         type: ['Phpunit', 'Phpunit Lowest']
         include:
           - php: '8.1' # TODO replace with 'latest' once it represents at least PHP 8.1
@@ -106,12 +104,13 @@ jobs:
           ACCEPT_EULA: Y
           SA_PASSWORD: atk4_pass
       oracle:
-        image: gvenzl/oracle-xe:18-slim-faststart
+        image: gvenzl/oracle-xe:18
         env:
           ORACLE_PASSWORD: atk4_pass
+        options: --health-cmd healthcheck.sh --health-interval=10s --health-timeout=5s --health-retries=10
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v2
 
       - name: Configure PHP
         run: |
@@ -146,8 +145,7 @@ jobs:
           php -r '(new PDO("mysql:host=mysql", "root", "atk4_pass_root"))->exec("ALTER USER '"'"'atk4_test_user'"'"'@'"'"'%'"'"' WITH MAX_USER_CONNECTIONS 5");'
           php -r '(new PDO("mysql:host=mariadb", "root", "atk4_pass_root"))->exec("ALTER USER '"'"'atk4_test_user'"'"'@'"'"'%'"'"' WITH MAX_USER_CONNECTIONS 5");'
           php -r '(new PDO("pgsql:host=postgres;dbname=atk4_test", "atk4_test_user", "atk4_pass"))->exec("ALTER ROLE atk4_test_user CONNECTION LIMIT 1");'
-          /usr/lib/oracle/setup.sh
-          if [ -n "$LOG_COVERAGE" ]; then mkdir coverage; fi
+          if [ -n "$LOG_COVERAGE" ]; then mkdir coverage && cp tools/CoverageUtil.php demos; fi
 
       - name: "Run tests: SQLite"
         run: |
@@ -156,7 +154,6 @@ jobs:
           if [ -n "$LOG_COVERAGE" ]; then mv coverage/phpunit.cov coverage/phpunit-sqlite.cov; fi
 
       - name: "Run tests: MySQL"
-        if: success() || failure()
         env:
           DB_DSN: "mysql:host=mysql;dbname=atk4_test"
           DB_USER: atk4_test_user
@@ -167,8 +164,7 @@ jobs:
           php -d opcache.enable_cli=1 vendor/bin/phpunit --exclude-group none $(if [ -n "$LOG_COVERAGE" ]; then echo --coverage-text; else echo --no-coverage; fi) -v
           if [ -n "$LOG_COVERAGE" ]; then mv coverage/phpunit.cov coverage/phpunit-mysql.cov; fi
 
-      - name: "Run tests: MariaDB (only for cron)"
-        if: (success() || failure()) && github.event_name == 'schedule'
+      - name: "Run tests: MariaDB"
         env:
           DB_DSN: "mysql:host=mariadb;dbname=atk4_test"
           DB_USER: atk4_test_user
@@ -179,8 +175,7 @@ jobs:
           php -d opcache.enable_cli=1 vendor/bin/phpunit --exclude-group none $(if [ -n "$LOG_COVERAGE" ]; then echo --coverage-text; else echo --no-coverage; fi) -v
           if [ -n "$LOG_COVERAGE" ]; then mv coverage/phpunit.cov coverage/phpunit-mariadb.cov; fi
 
-      - name: "Run tests: PostgreSQL (only for cron)"
-        if: (success() || failure()) && github.event_name == 'schedule'
+      - name: "Run tests: PostgreSQL"
         env:
           DB_DSN: "pgsql:host=postgres;dbname=atk4_test"
           DB_USER: atk4_test_user
@@ -191,10 +186,9 @@ jobs:
           php -d opcache.enable_cli=1 vendor/bin/phpunit --exclude-group none $(if [ -n "$LOG_COVERAGE" ]; then echo --coverage-text; else echo --no-coverage; fi) -v
           if [ -n "$LOG_COVERAGE" ]; then mv coverage/phpunit.cov coverage/phpunit-postgres.cov; fi
 
-      - name: "Run tests: MSSQL (only for cron)"
-        if: (success() || failure()) && github.event_name == 'schedule'
+      - name: "Run tests: MSSQL"
         env:
-          DB_DSN: "sqlsrv:host=mssql;dbname=master;driverOptions[TrustServerCertificate]=1"
+          DB_DSN: "sqlsrv:host=mssql;dbname=master"
           DB_USER: sa
           DB_PASSWORD: atk4_pass
         run: |
@@ -203,8 +197,7 @@ jobs:
           php -d opcache.enable_cli=1 vendor/bin/phpunit --exclude-group none $(if [ -n "$LOG_COVERAGE" ]; then echo --coverage-text; else echo --no-coverage; fi) -v
           if [ -n "$LOG_COVERAGE" ]; then mv coverage/phpunit.cov coverage/phpunit-mssql.cov; fi
 
-      - name: "Run tests: Oracle (only for cron)"
-        if: (success() || failure()) && github.event_name == 'schedule'
+      - name: "Run tests: Oracle"
         env:
           DB_DSN: "oci:dbname=oracle/xe"
           DB_USER: system

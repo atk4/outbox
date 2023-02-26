@@ -12,7 +12,7 @@ class User extends Model
 {
     public $table = 'user';
 
-    public ?string $titleField = 'email';
+    public $title_field = 'email';
 
     protected function init(): void
     {
@@ -22,14 +22,16 @@ class User extends Model
         $this->addField('last_name');
 
         $this->addField('email');
+
+        // $this->addExpression('name', '([first_name] || [last_name])');
     }
 
     public function getMailAddress(): MailAddress
     {
-        $address = (new MailAddress(new Array_()))->createEntity();
-        $address->set('email', $this->get('email'));
-        $address->set('name', $this->get('first_name') . ' ' . $this->get('last_name'));
+        $mailAddress = (new MailAddress(new Array_()))->createEntity();
+        $mailAddress->set('email', $this->get('email'));
+        $mailAddress->set('name', $this->get('first_name') . ' ' . $this->get('last_name'));
 
-        return $address;
+        return $mailAddress;
     }
 }

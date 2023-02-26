@@ -14,17 +14,11 @@
         }
     ],
     "require": {
-        "php": ">=7.4 <=8.2",
-        "atk4/data": "dev-develop",
-        "phpmailer/phpmailer": "^v6.5.3"
-    },
-    "require-release": {
-        "php": ">=7.4 <=8.2",
-        "atk4/data": "~3.2.0",
+        "php": ">=7.4 <8.2",
+        "atk4/ui": "4.0.0",
         "phpmailer/phpmailer": "^v6.5.3"
     },
     "require-dev": {
-        "atk4/ui": "dev-develop",
         "ergebnis/composer-normalize": "^2.13",
         "friendsofphp/php-cs-fixer": "^3.0",
         "johnkary/phpunit-speedtrap": "^3.3",
@@ -47,10 +41,10 @@
         }
     },
     "config": {
+        "sort-packages": true,
         "allow-plugins": {
             "ergebnis/composer-normalize": true,
             "phpstan/extension-installer": true
-        },
-        "sort-packages": true
+        }
     }
 }
