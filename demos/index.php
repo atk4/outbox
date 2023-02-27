@@ -116,18 +116,10 @@ class index extends \Atk4\Ui\View
         $grid->addActionButton(
             'edit',
             fn ($jq, $id) => $this->loader->jsLoad(['route' => 'template-edit', 'template_id' => $id]),
-            '',
-            [
-                'id' => $grid->jsRow()->data('id'),
-            ]
         );
         $grid->addActionButton(
             'create email from template',
-            fn ($jq, $id) => $this->loader->jsLoad(['route' => 'send-email', 'from_template_id' => $id]),
-            '',
-            [
-                'id' => $grid->jsRow()->data('id'),
-            ]
+            fn ($jq, $id) => $this->loader->jsLoad(['route' => 'send-email', 'from_template_id' => $id])
         );
     }
 
