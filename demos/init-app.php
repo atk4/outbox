@@ -26,9 +26,9 @@ if (file_exists(__DIR__ . '/CoverageUtil.php') && !class_exists(\PHPUnit\Framewo
 }
 
 try {
+    /** @var Persistence|Persistence\Sql $db */
     require_once __DIR__ . '/init-db.php';
 
-    /** @var Persistence|Persistence\Sql $db */
     $app->db = $db;
     unset($db);
 } catch (\Throwable $throwable) {

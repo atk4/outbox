@@ -20,6 +20,8 @@ if (!file_exists($sqliteFile)) {
 
 unset($sqliteFile);
 
+
+/** @var Persistence|Persistence\Sql $db */
 require_once __DIR__ . '/../init-db.php';
 
 echo 'GITHUB_JOB : ' . getenv('GITHUB_JOB') . "\n\n";
@@ -29,8 +31,6 @@ if (getenv('GITHUB_JOB') === 'unit-test') {
 
     return;
 }
-
-/** @var Persistence|Persistence\Sql $db */
 
 (new Migrator(new Mail($db)))->create();
 (new Migrator(new MailTemplate($db)))->create();

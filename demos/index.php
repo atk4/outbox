@@ -21,19 +21,20 @@ use Atk4\Ui\Table;
 
 include dirname(__DIR__) . '/vendor/autoload.php';
 
-require __DIR__ . '/init-app.php';
-
 /** @var App $app */
+require __DIR__ . '/init-app.php';
 
 $app->initLayout([Admin::class]);
 
-Outbox::addTo($app, [
+$outbox = Outbox::addTo($app, [
     'mailer' => new FakeMailer(),
     'model' => new Mail($app->db),
 ]);
 
 class index extends \Atk4\Ui\View
 {
+    public Outbox $outbox;
+
     private Loader $loader;
 
     /**
@@ -214,9 +215,7 @@ class index extends \Atk4\Ui\View
 
     public function composeEmail(): void
     {
-        /** @var Outbox $outbox */
-        $outbox = $this->getApp()->getOutbox();
-        $mail = $outbox->new();
+        $mail = $this->outbox->new();
 
         $title = 'New Email';
 
@@ -286,7 +285,7 @@ class index extends \Atk4\Ui\View
         $mlReplyTo = $column->addControl('_replyto', [Multiline::class], ['neverSave' => true, 'neverPersist' => true]);
         $mlReplyTo->setModel($mail->ref('replyto'));
 
-        $form->onSubmit(function (\Atk4\Ui\Form $form) use ($outbox, $mlTo, $mlCc, $mlBcc, $mlReplyTo) {
+        $form->onSubmit(function (\Atk4\Ui\Form $form) use ($mlTo, $mlCc, $mlBcc, $mlReplyTo) {
             /** @var Mail $model */
             $model = $form->model;
 
@@ -302,7 +301,7 @@ class index extends \Atk4\Ui\View
 
             $model->save();
 
-            $outbox->send($model);
+            $this->outbox->send($model);
 
             return [
                 $this->loader->jsReload(),
@@ -312,4 +311,4 @@ class index extends \Atk4\Ui\View
     }
 }
 
-index::addTo($app);
+index::addTo($app, ['outbox' => $outbox]);
