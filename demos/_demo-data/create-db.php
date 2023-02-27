@@ -20,7 +20,6 @@ if (!file_exists($sqliteFile)) {
 
 unset($sqliteFile);
 
-
 /** @var Persistence|Persistence\Sql $db */
 require_once __DIR__ . '/../init-db.php';
 
