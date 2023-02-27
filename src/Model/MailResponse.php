@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Atk4\Outbox\Model;
 
 use Atk4\Data\Model;
-use DateTime;
+use Atk4\Data\Reference;
 
 class MailResponse extends Model
 {
@@ -15,7 +15,12 @@ class MailResponse extends Model
     {
         parent::init();
 
-        $this->hasOne('email_id', ['model' => [Mail::class]]);
+        /** @var Reference\HasOneSql $refEmail */
+        $refEmail = $this->hasOne('email_id', [
+            'model' => [Mail::class],
+        ]);
+        $refEmail->addField('subject');
+        $refEmail->addField('status');
 
         $this->addField('code', ['type' => 'integer', 'default' => 0]);
         $this->addField(
@@ -25,7 +30,7 @@ class MailResponse extends Model
 
         $this->addField(
             'timestamp',
-            ['type' => 'datetime', 'default' => new DateTime()]
+            ['type' => 'datetime', 'default' => new \DateTime()]
         );
     }
 }

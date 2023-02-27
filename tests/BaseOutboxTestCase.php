@@ -24,7 +24,7 @@ abstract class BaseOutboxTestCase extends GenericTestCase
                 'name' => 'destination',
             ]);
 
-            $entity->onHook('afterSend', function ($m, $response) {
+            $entity->onHook(Mail::HOOK_AFTER_SEND, function ($m, $response) {
                 $this->assertSame(
                     'hi to all,<br/>this is outbox library of Agile Toolkit.<br/><br/>have a good day.',
                     $m->get('html')
@@ -52,20 +52,20 @@ abstract class BaseOutboxTestCase extends GenericTestCase
 
         $response = $outbox->send($mail);
 
-        $this->assertSame(
+        static::assertSame(
             'hi to all,<br/>this is outbox library of Agile Toolkit.<br/><br/>have a good day.',
             $mail->get('html')
         );
-        $this->assertSame($response->get('email_id'), $mail->id);
+        static::assertSame($response->get('email_id'), $mail->id);
     }
 
     public function testMailSaveAsTemplate(): void
     {
         $this->setupDefaultDb();
 
-        $mail_model = new Mail($this->db);
+        $mail = new Mail($this->db);
 
-        $entity = $mail_model->createEntity();
+        $entity = $mail->createEntity();
         $entity->ref('from')->save([
             'email' => 'from@email.it',
             'name' => 'from',
@@ -86,14 +86,18 @@ abstract class BaseOutboxTestCase extends GenericTestCase
             'name' => 'bcc1',
         ]]);
 
-        $template_model = $entity->saveAsTemplate('new_mail_template');
+        $mailTemplate = $entity->saveAsTemplate('new_mail_template');
 
-        foreach ($template_model->getFields() as $fieldname => $field) {
-            if ($fieldname === $template_model->id_field || !$entity->hasField($fieldname)) {
+        foreach (array_keys($mailTemplate->getFields()) as $fieldname) {
+            if ($fieldname === $mailTemplate->idField) {
                 continue;
             }
 
-            $this->assertSame($template_model->get($fieldname), $entity->get($fieldname), $fieldname);
+            if (!$entity->hasField($fieldname)) {
+                continue;
+            }
+
+            static::assertSame($mailTemplate->get($fieldname), $entity->get($fieldname), $fieldname);
         }
     }
 
@@ -114,11 +118,11 @@ abstract class BaseOutboxTestCase extends GenericTestCase
 
         $response = $outbox->send($mail);
 
-        $this->assertSame(
+        static::assertSame(
             'hi to all,<br/>this is outbox library of Agile Toolkit.<br/><br/>have a good day.',
             $mail->get('html')
         );
-        $this->assertSame($response->get('email_id'), $mail->id);
+        static::assertSame($response->get('email_id'), $mail->id);
     }
 
     public function testWithAddressAdvanced(): void
@@ -177,10 +181,10 @@ abstract class BaseOutboxTestCase extends GenericTestCase
 
         $response = $outbox->send($mail);
 
-        $this->assertSame(
+        static::assertSame(
             'hi to all,<br/>this is outbox library of Agile Toolkit.<br/><br/>have a good day.<br/><br/>John Doe',
             $mail->get('html')
         );
-        $this->assertSame($response->get('email_id'), $mail->id);
+        static::assertSame($response->get('email_id'), $mail->id);
     }
 }

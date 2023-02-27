@@ -14,12 +14,12 @@ class Outbox extends AbstractView
     /**
      * Mailer.
      */
-    protected ?MailerInterface $mailer;
+    protected ?MailerInterface $mailer = null;
 
     /**
      * Default Mail model.
      */
-    protected ?Mail $model;
+    protected ?Mail $model = null;
 
     public function __construct(array $defaults = [])
     {
@@ -54,11 +54,11 @@ class Outbox extends AbstractView
     {
         $this->validateOutbox();
 
-        $mail->hook('beforeSend');
-        $response = $this->mailer->send($mail);
-        $mail->hook('afterSend', [$response]);
+        $mail->hook(Mail::HOOK_BEFORE_SEND);
+        $mailResponse = $this->mailer->send($mail);
+        $mail->hook(Mail::HOOK_AFTER_SEND, [$mailResponse]);
 
-        return $response;
+        return $mailResponse;
     }
 
     protected function init(): void

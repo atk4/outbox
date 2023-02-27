@@ -16,5 +16,6 @@ $sqliteFile = __DIR__ . '/_demo-data/db.sqlite';
 if (!file_exists($sqliteFile)) {
     throw new \Exception('Sqlite database does not exist, create it first.');
 }
+
 $db = new Persistence\Sql('sqlite:' . $sqliteFile);
 unset($sqliteFile);

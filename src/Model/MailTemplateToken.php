@@ -11,6 +11,7 @@ class MailTemplateToken extends Model
     protected function init(): void
     {
         parent::init();
+
         $this->addField('token');
         $this->addField('description');
     }

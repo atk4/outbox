@@ -6,8 +6,6 @@ namespace Atk4\Outbox\Model;
 
 use Atk4\Data\Exception;
 use Atk4\Data\Model;
-use Atk4\Data\Reference\ContainsMany;
-use Atk4\Data\Reference\ContainsOne;
 use Atk4\Outbox\Outbox;
 
 /**
@@ -15,12 +13,44 @@ use Atk4\Outbox\Outbox;
  */
 class Mail extends Model
 {
+    /**
+     * @var string
+     */
+    public const HOOK_BEFORE_SEND = Model::class . '@beforeSend';
+
+    /**
+     * @var string
+     */
+    public const HOOK_AFTER_SEND = Model::class . '@afterSend';
+
+    /**
+     * @var string
+     */
     public const STATUS_DRAFT = 'DRAFT';
+
+    /**
+     * @var string
+     */
     public const STATUS_READY = 'READY';
+
+    /**
+     * @var string
+     */
     public const STATUS_SENDING = 'SENDING';
+
+    /**
+     * @var string
+     */
     public const STATUS_SENT = 'SENT';
+
+    /**
+     * @var string
+     */
     public const STATUS_ERROR = 'ERROR';
 
+    /**
+     * @var string[]
+     */
     public const MAIL_STATUS = [
         self::STATUS_DRAFT,
         self::STATUS_READY,
@@ -38,14 +68,14 @@ class Mail extends Model
     public function withTemplateIdentifier(string $identifier): self
     {
         /** @var MailTemplate $template */
-        $template = new $this->mail_template_default($this->persistence);
-        $entity = $template->tryLoadBy('identifier', $identifier);
+        $template = new $this->mail_template_default($this->getPersistence());
+        $mailTemplate = $template->tryLoadBy('identifier', $identifier);
 
-        if (!$entity->isLoaded()) {
+        if (!$mailTemplate->isLoaded()) {
             throw new Exception('template "' . $identifier . '" not exists');
         }
 
-        $this->withTemplate($entity);
+        $this->withTemplate($mailTemplate);
 
         return $this;
     }
@@ -53,14 +83,32 @@ class Mail extends Model
     /**
      * Set data from MailTemplate.
      */
-    public function withTemplate(MailTemplate $template): self
+    public function withTemplate(MailTemplate $mailTemplate): self
     {
         $this->allowProcessing();
 
-        foreach ($template->get() as $fieldname => $value) {
-            if ($fieldname !== $this->id_field && $this->hasField($fieldname)) {
-                $this->set($fieldname, $value);
+        foreach ($mailTemplate->getFields() as $fieldname => $field) {
+            if ($fieldname === $this->idField) {
+                continue;
             }
+
+            if (!$this->hasField($fieldname)) {
+                continue;
+            }
+
+            if ($field->hasReference()) {
+                if ($field->getReference() instanceof \Atk4\Data\Reference\ContainsMany) {
+                    $this->ref($fieldname)->import($mailTemplate->get($fieldname) ?? []);
+                }
+
+                if ($field->getReference() instanceof \Atk4\Data\Reference\ContainsOne) {
+                    $this->ref($fieldname)->save($mailTemplate->get($fieldname) ?? []);
+                }
+
+                continue;
+            }
+
+            $this->set($fieldname, $mailTemplate->get($fieldname));
         }
 
         return $this;
@@ -71,11 +119,6 @@ class Mail extends Model
      */
     private function allowProcessing(): void
     {
-        if (!$this->isEntity()) {
-            throw (new Exception('Processins of mail model is allowed only for entity'))
-                ->addSolution('try call createEntity before');
-        }
-
         if ((int) $this->get('status') !== 0) {
             throw new Exception('You cannot modify a mail not in draft status');
         }
@@ -99,6 +142,7 @@ class Mail extends Model
             if ($value === null) {
                 continue;
             }
+
             $key = '{{' . ($prefix === null ? $key : $prefix . '.' . $key) . '}}';
             $this->replaceContentToken($key, (string) $value);
         }
@@ -130,35 +174,41 @@ class Mail extends Model
 
     public function saveAsTemplate(string $identifier, bool $overwrite = false): MailTemplate
     {
-        $model = new MailTemplate($this->persistence);
-        $model->addCondition('identifier', $identifier);
+        $mailTemplate = new MailTemplate($this->getPersistence());
+        $mailTemplate->addCondition('identifier', $identifier);
 
-        $entity_template = $model->tryLoadAny();
+        $entity_template = $mailTemplate->tryLoadAny();
 
         if ($overwrite && $entity_template->isLoaded()) {
             throw new \Atk4\Ui\Exception('Template Identifier already exists');
         }
 
+        if (!$overwrite) {
+            $entity_template = $mailTemplate->createEntity();
+        }
+
         foreach ($this->getFields() as $fieldname => $field) {
-            if ($fieldname === $this->id_field || !$entity_template->hasField($fieldname)) {
+            if ($fieldname === $this->idField) {
                 continue;
             }
 
-            if (is_a($field->getReference(), ContainsMany::class, true) && !empty($this->get($fieldname))) {
-                $entity_template->ref($fieldname)->import($this->get($fieldname));
+            if (!$entity_template->hasField($fieldname)) {
+                continue;
+            }
+
+            if ($field->hasReference()) {
+                if ($field->getReference() instanceof \Atk4\Data\Reference\ContainsMany && !empty($this->get($fieldname))) {
+                    $entity_template->ref($fieldname)->import($this->get($fieldname));
+                }
+
+                if ($field->getReference() instanceof \Atk4\Data\Reference\ContainsOne && !empty($this->get($fieldname))) {
+                    $entity_template->ref($fieldname)->save($this->get($fieldname));
+                }
 
                 continue;
             }
 
-            if (is_a($field->getReference(), ContainsOne::class, true) && !empty($this->get($fieldname))) {
-                $entity_template->ref($fieldname)->save($this->get($fieldname));
-
-                continue;
-            }
-
-            if ($field->getReference() === null) {
-                $entity_template->set($fieldname, $this->get($fieldname));
-            }
+            $entity_template->set($fieldname, $this->get($fieldname));
         }
 
         return $entity_template->save();
@@ -194,7 +244,7 @@ class Mail extends Model
 
         $this->hasMany('response', [
             'model' => [MailResponse::class],
-            'their_field' => 'email_id',
+            'theirField' => 'email_id',
         ]);
     }
 }

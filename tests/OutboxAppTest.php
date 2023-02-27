@@ -18,16 +18,16 @@ class OutboxAppTest extends BaseOutboxTestCase
     protected function getOutbox(): Outbox
     {
         $app = new App([
-            'always_run' => false,
-            'call_exit' => false,
-            'catch_exceptions' => false,
+            'alwaysRun' => false,
+            'callExit' => false,
+            'catchExceptions' => false,
         ]);
         $app->initLayout([Layout::class]);
 
-        $app->add([Outbox::class, [
+        Outbox::addTo($app, [
             'mailer' => new FakeMailer(),
             'model' => new Mail($this->db),
-        ]]);
+        ]);
 
         if (!is_callable([$app, 'getOutbox'])) {
             throw new Exception('App without getOutbox method');
